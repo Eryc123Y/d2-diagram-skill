@@ -170,6 +170,44 @@ d2 --theme 0 --layout elk input.d2 output.pdf
 
 Always output the render command after the code block.
 
+## Output Formats
+
+Prefer describing exports in two categories:
+
+- **Direct D2 exports**: use `d2` to render the target format directly.
+- **Post-processing conversions**: export SVG or PNG first, then convert with another tool.
+
+Direct D2 exports:
+
+```bash
+# SVG
+d2 --sketch --theme 200 --layout elk input.d2 output.svg
+
+# PNG
+d2 --sketch --theme 200 --layout elk input.d2 output.png
+
+# PDF
+d2 --theme 0 --layout elk input.d2 output.pdf
+
+# PPTX
+d2 --theme 0 --layout elk input.d2 output.pptx
+
+# GIF
+d2 --layout elk input.d2 output.gif
+```
+
+For JPEG / JPG or other raster formats not directly emitted by D2, export SVG or PNG first and then convert:
+
+```bash
+# SVG -> JPG
+magick input.svg output.jpg
+
+# PNG -> JPG
+magick input.png output.jpg
+```
+
+If using an external converter, mention it explicitly instead of implying D2 emits that format natively.
+
 ## Key Rules
 
 - **Connections always last** — mixing edge declarations with node declarations confuses ELK routing
