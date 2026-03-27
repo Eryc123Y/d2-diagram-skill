@@ -35,6 +35,27 @@ description: "Generate production-quality D2 diagrams for system and process vis
 
 For complete renderable examples of every type, see `references/d2-examples.md`.
 
+## UML Mode
+
+When the user explicitly asks for UML, class diagrams, object diagrams, package diagrams, component diagrams, or relationship-accurate notation, switch into **strict UML mode**:
+
+- Follow UML 2.5.1 notation concepts and naming.
+- Prefer D2's native UML support where available, especially `shape: class`.
+- Use correct relationship markers instead of generic arrows whenever D2 can express them.
+- Do not mix informal architecture notation with UML notation on the same diagram unless the user asks for a hybrid.
+
+Relationship rules in UML mode:
+
+- **Association**: plain solid line. Add navigability only if the user specifies direction.
+- **Directed association**: solid line with arrowhead on the navigable end.
+- **Aggregation**: hollow diamond on the whole/aggregate side.
+- **Composition**: filled diamond on the whole/composite side.
+- **Generalization**: solid line with hollow triangle pointing to the parent.
+- **Realization**: dashed line with hollow triangle pointing to the interface/specification.
+- **Dependency**: dashed line with open arrow.
+
+In D2, use `source-arrowhead` and `target-arrowhead` overrides to model these precisely. See `references/uml-2.5.1-notation.md` for concrete patterns.
+
 ## Palette Options
 
 Choose based on the audience and output context. Default to **dark** for engineering diagrams.
@@ -133,6 +154,7 @@ Always output the render command after the code block.
 - **Connections always last** — mixing edge declarations with node declarations confuses ELK routing
 - **Default to ELK** — always pass `layout-engine: elk` or `--layout elk` unless `sequence_diagram` is in use
 - **`sequence_diagram` is the only exception** — D2 uses dagre internally for sequences regardless of config
+- **Use strict UML notation when requested** — class/object/package/component diagrams should follow UML 2.5.1 semantics instead of generic architecture conventions
 - **Classes over inline styles** — never repeat `fill`/`stroke`/`font-color` on individual nodes; define a class
 - **One `class` per node** — D2 supports only one; use `class` for shape/dimensions, a `style` block for color overrides
 - **Integer `stroke-width` only** — D2 v0.7.x rejects decimal values (use 1, 2, 3 — not 1.5)
@@ -144,3 +166,4 @@ Always output the render command after the code block.
 
 - **`references/d2-style-guide.md`** — Complete D2 syntax: all style properties, shape catalog, palette options and color semantics, icon library (40+ verified URLs), ELK config, grid layouts, animation patterns, composition/multi-board (layers/scenarios/steps), glob patterns. Read when you need syntax details or icon URLs.
 - **`references/d2-examples.md`** — Full renderable examples for every diagram type: Architecture (L1–L3), Sequence, ER, Flowchart, Data Flow, Network/Security, State Machine, Org Chart, Class Diagram, Roadmap/Timeline. Read when starting any specific diagram type.
+- **`references/uml-2.5.1-notation.md`** — UML 2.5.1 relationship notation quick reference, including association, aggregation, composition, generalization, realization, and dependency mapping into D2 arrowheads.

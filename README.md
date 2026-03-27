@@ -28,7 +28,8 @@ It is designed for:
     ├── SKILL.md
     └── references/
         ├── d2-examples.md
-        └── d2-style-guide.md
+        ├── d2-style-guide.md
+        └── uml-2.5.1-notation.md
 ```
 
 ### Install
@@ -52,6 +53,7 @@ cp -R skill/. .claude/skills/d2-diagram/
 - The install target must contain `SKILL.md` at its root.
 - The `references/` directory is part of the skill package and should be copied together with `SKILL.md`.
 - The skill defaults to ELK for layouts. `sequence_diagram` remains the only practical exception because D2 handles it internally.
+- A dedicated UML 2.5.1 notation reference is bundled for relationship-accurate UML diagrams.
 
 ### Render Example
 
@@ -85,7 +87,8 @@ d2 --sketch --theme 200 --layout elk input.d2 output.svg
     ├── SKILL.md
     └── references/
         ├── d2-examples.md
-        └── d2-style-guide.md
+        ├── d2-style-guide.md
+        └── uml-2.5.1-notation.md
 ```
 
 ### 安装方式
@@ -109,6 +112,7 @@ cp -R skill/. .claude/skills/d2-diagram/
 - 安装目标目录的根层必须直接包含 `SKILL.md`。
 - `references/` 是 skill 的一部分，复制时要和 `SKILL.md` 一起带上。
 - 这个 skill 默认使用 ELK 布局；`sequence_diagram` 仍然是唯一的例外，因为 D2 会内部处理它。
+- 仓库还内置了 UML 2.5.1 关系标记参考，适合需要严格关系语义的 UML 图。
 
 ### 渲染示例
 
