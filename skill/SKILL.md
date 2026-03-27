@@ -35,6 +35,15 @@ description: "Generate production-quality D2 diagrams for system and process vis
 
 For complete renderable examples of every type, see `references/d2-examples.md`.
 
+## Required Source Checks
+
+Before generating diagrams where notation correctness matters, consult the bundled sources first instead of relying on memory alone:
+
+- **UML diagrams**: read `references/uml-2.5.1-notation.md` before generating class, object, package, component, or relationship-accurate diagrams.
+- **Sequence diagrams**: read `references/sequence-diagram-checklist.md` before generating or revising any non-trivial sequence diagram.
+
+Treat these references as required inputs, not optional background material.
+
 ## UML Mode
 
 When the user explicitly asks for UML, class diagrams, object diagrams, package diagrams, component diagrams, or relationship-accurate notation, switch into **strict UML mode**:
@@ -55,6 +64,18 @@ Relationship rules in UML mode:
 - **Dependency**: dashed line with open arrow.
 
 In D2, use `source-arrowhead` and `target-arrowhead` overrides to model these precisely. See `references/uml-2.5.1-notation.md` for concrete patterns.
+
+## Sequence Diagram Mode
+
+When the user asks for a sequence diagram, follow D2's native sequence diagram rules rather than drawing a generic left-to-right arrow chart:
+
+- Predeclare actors at the top level to control ordering.
+- Use groups to represent meaningful interaction fragments.
+- Use spans when activation / in-flight work matters.
+- Use notes for operational context, timing assumptions, or caveats.
+- Preserve message order deliberately because D2 sequence diagrams render in definition order.
+
+Before drawing the final diagram, read `references/sequence-diagram-checklist.md`.
 
 ## Palette Options
 
@@ -167,3 +188,4 @@ Always output the render command after the code block.
 - **`references/d2-style-guide.md`** — Complete D2 syntax: all style properties, shape catalog, palette options and color semantics, icon library (40+ verified URLs), ELK config, grid layouts, animation patterns, composition/multi-board (layers/scenarios/steps), glob patterns. Read when you need syntax details or icon URLs.
 - **`references/d2-examples.md`** — Full renderable examples for every diagram type: Architecture (L1–L3), Sequence, ER, Flowchart, Data Flow, Network/Security, State Machine, Org Chart, Class Diagram, Roadmap/Timeline. Read when starting any specific diagram type.
 - **`references/uml-2.5.1-notation.md`** — UML 2.5.1 relationship notation quick reference, including association, aggregation, composition, generalization, realization, and dependency mapping into D2 arrowheads.
+- **`references/sequence-diagram-checklist.md`** — D2 sequence diagram checklist derived from the official D2 sequence diagram documentation. Read before producing production-grade sequence diagrams.
