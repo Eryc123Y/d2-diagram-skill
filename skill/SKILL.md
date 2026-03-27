@@ -213,6 +213,7 @@ If using an external converter, mention it explicitly instead of implying D2 emi
 - **Connections always last** — mixing edge declarations with node declarations confuses ELK routing
 - **Default to ELK** — always pass `layout-engine: elk` or `--layout elk` unless `sequence_diagram` is in use
 - **`sequence_diagram` is the only exception** — D2 uses dagre internally for sequences regardless of config
+- **If using the `tala` layout engine and exporting SVG, manually remove every `</mask>` tag from the generated SVG after rendering**
 - **Use strict UML notation when requested** — class/object/package/component diagrams should follow UML 2.5.1 semantics instead of generic architecture conventions
 - **Classes over inline styles** — never repeat `fill`/`stroke`/`font-color` on individual nodes; define a class
 - **One `class` per node** — D2 supports only one; use `class` for shape/dimensions, a `style` block for color overrides
