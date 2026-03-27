@@ -1,43 +1,79 @@
 # DIAGRAM TYPE: Sequence
 # AUDIENCE: Application and platform engineers
-# Shows: A production checkout orchestration with fraud, inventory, payment, and notification steps
+# Shows: A production checkout orchestration with idempotency, fraud checks, 3DS, webhook confirmation, downstream events, and compensation
 
-Checkout flow: {
+Checkout orchestration: {
   shape: sequence_diagram
 
-  user: Customer
-  app: Web App
-  api: Checkout API
-  fraud: Fraud service
+  customer: Customer
+  web: Web App
+  edge: Edge API
+  checkout: Checkout service
+  fraud: Fraud engine
   inventory: Inventory service
   payments: Payment gateway
+  threeds: 3DS provider
   orders: Order service
+  bus: Event bus
   email: Notification service
+  ops: Operations console
 
-  happy_path: Happy path {
-    user -> app: submit checkout
-    app -> api: create checkout session
-    api -> fraud: evaluate basket
-    fraud -> api: risk score = low
-    api -> inventory: reserve stock
-    inventory -> api: reservation confirmed
-    api -> payments: authorize payment
-    payments -> api: authorization approved
-    api -> orders: create order
-    orders -> api: order placed
-    api -> email: send confirmation
-    email -> api: queued
-    api -> app: checkout success
-    app -> user: render confirmation page
+  checkout."Idempotency key is attached to every retry for the same basket"
+  inventory."Reservation TTL = 15 minutes"
+
+  session_bootstrap: Session bootstrap {
+    customer -> web: click Pay now
+    web -> edge: POST /checkout/submit
+    edge -> checkout: submitCheckout(cart, idempotencyKey)
+    checkout -> fraud: score basket and device fingerprint
+    fraud -> checkout: risk = low
+    checkout -> inventory: reserve SKUs
+    inventory -> checkout: reservation created
+    checkout -> web: return challengeable payment session
   }
 
-  payment_failure: Payment failure branch {
-    app -> api: retry failed checkout
-    api -> payments: authorize payment
-    payments -> api: authorization declined
-    api -> inventory: release reservation
-    inventory -> api: reservation released
-    api -> app: payment failed
-    app -> user: show retry and support options
+  authorization_with_3ds: Authorization with 3DS {
+    web -> edge: POST /checkout/authorize
+    edge -> checkout: authorize payment
+    checkout -> payments: authorize(amount, idempotencyKey)
+    payments -> threeds: create challenge
+    threeds -> payments: challenge url
+    payments -> checkout: action_required
+    checkout -> web: present 3DS challenge
+    web -> customer: redirect to challenge flow
+    customer -> web: complete challenge
+    web -> edge: POST /checkout/confirm
+    edge -> checkout: confirm challenge
+    checkout -> payments: confirm authorization
+    payments -> checkout: authorization approved
+    payments -> edge: webhook payment.authorized
+    edge -> checkout: reconcile webhook
+  }
+
+  commit_and_publish: Commit and publish {
+    checkout -> orders: create pending order
+    orders -> checkout: order created
+    checkout -> bus: publish order.created
+    bus -> email: fan out confirmation event
+    email -> checkout: email queued
+    checkout -> inventory: mark reservation committed
+    inventory -> checkout: reservation consumed
+    checkout -> web: checkout success
+    web -> customer: render confirmation page
+  }
+
+  compensation_path: Compensation on order write failure {
+    web -> edge: retry previously authorized checkout
+    edge -> checkout: same idempotencyKey
+    checkout -> orders: create order
+    orders -> checkout: database write failed
+    checkout -> bus: publish checkout.compensation_required
+    checkout -> inventory: release reservation
+    inventory -> checkout: reservation released
+    checkout -> payments: void authorization
+    payments -> checkout: void confirmed
+    checkout -> ops: open compensation incident
+    checkout -> web: return recoverable failure
+    web -> customer: show retry and support options
   }
 }
