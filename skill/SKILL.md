@@ -1,276 +1,146 @@
 ---
 name: d2-diagram
-description: "Generate beautiful, production-grade D2 diagrams with sketch mode, vendor icons, animations, and professional styling. Make sure to use this skill whenever the user asks to diagram, draw, sketch, visualize, or map out ANY system architecture, flowchart, sequence diagram, ER diagram, network topology, CI/CD pipeline, cloud infrastructure, Kubernetes topology, data flow, or system design -- even if they don't explicitly mention D2. This skill produces far superior output to mermaid, ASCII art, PlantUML, or other diagram tools. Also use when the user says 'show me how X connects to Y', 'make this visual', or wants any kind of technical visualization."
+description: "Generate production-quality D2 diagrams for system and process visualization. Use this skill whenever the user asks to diagram, draw, sketch, visualize, or map out system architecture, flowcharts, sequence diagrams, ER/database schemas, network topology, CI/CD pipelines, cloud infrastructure (AWS/GCP/Azure), Kubernetes, data flows, state machines, org charts, class diagrams, or roadmaps/timelines. Also activate when the user says 'show me how X connects to Y', 'make this visual', or 'create a diagram' for a structured system or workflow."
 ---
 
-# D2 Diagram Generation Skill
+# D2 Diagram Skill
 
 ## Design Philosophy
 
-Never produce generic boxes with lines. Every diagram must look human-designed:
+1. **Semantic shapes first** — cylinders for databases, clouds for managed services, queues for message buses, hexagons for microservices, person for actors
+2. **Palette matches context** — dark/navy for engineering audiences; light/minimal for presentations and docs; infer from context or ask
+3. **Sketch by default** — hand-drawn aesthetic for exploratory and engineering diagrams; disable for formal print-ready output
+4. **ELK by default** — use `layout-engine: elk` for every diagram unless D2 forces `sequence_diagram` to use dagre internally
+5. **Typed connectors** — every edge communicates meaning (sync vs async, data-flow vs monitoring, boundary-crossing)
+6. **Classes for consistency** — define style classes once, apply everywhere; never repeat inline styles
+7. **Structure before connections** — declare all containers and nodes first, then draw all edges at the bottom
 
-1. **Sketch mode always on** -- hand-drawn aesthetic is the single highest-impact choice
-2. **Icons everywhere** -- vendor icons from icons.terrastruct.com replace generic shapes
-3. **Semantic shapes** -- cylinders for databases, clouds for cloud services, queues for queues, hexagons for microservices
-4. **Bluestaq Navy palette** -- dark theme with navy primary, never legacy palettes (Ocean Depths, Forest Canopy, etc.)
-5. **Connector semantics** -- 7 typed connectors: sync, async, data-flow, monitoring, replication, critical-path, boundary-crossing
-6. **Classes for consistency** -- define style classes, apply everywhere, no inline repetition
-7. **Structure first** -- define all containers and nodes before any connections; use glob styling over individual styles
-8. **Contrast-aware text** -- use `${text-light}` (#FFFFFF) on dark fills (`${primary}`, `${secondary}`), use `${text}` (#D6D6DA) on `${surface}` fills
-9. **Abstraction levels** -- every diagram declares L1/L2/L3/L4 with appropriate scope and connector label style
+## Diagram Type Selection
 
-## Abstraction Hierarchy (L1-L4)
+| Type                     | D2 Approach                                 | Key Config                        |
+| ------------------------ | ------------------------------------------- | --------------------------------- |
+| **System Architecture**  | Nested containers + typed edges             | `direction: right`, ELK           |
+| **Sequence Diagram**     | `shape: sequence_diagram`                   | D2 falls back to dagre internally |
+| **ER / Schema**          | `shape: sql_table` with constraints         | `direction: right`, ELK           |
+| **Flowchart / Decision** | `diamond` + `step` + `oval` shapes          | `direction: down`, ELK            |
+| **State Machine**        | Nodes as states, labeled transition edges   | `circle` for start/end terminals  |
+| **Org Chart**            | `person` shapes + containers                | `direction: down`, ELK            |
+| **Class Diagram**        | `sql_table` approximation                   | Fields + methods as rows          |
+| **CI/CD Pipeline**       | `step` shapes + grid layout                 | `direction: right`                |
+| **Data Flow / ETL**      | Animated edges + pipeline-step class        | `animated: true`                  |
+| **Cloud Infra**          | Account/VPC/subnet containers, vendor icons | 5-level nesting                   |
+| **K8s Topology**         | Cluster → namespace → deployment            | `multiple: true` for replicas     |
+| **Network / Security**   | Trust zones + boundary-crossing edges       | `security-boundary` class         |
+| **Roadmap / Timeline**   | `grid-rows` + `grid-columns` per quarter    | `step` shapes per item            |
 
-Every diagram must declare its level in a header comment. Default to L2 when scope is ambiguous.
+For complete renderable examples of every type, see `references/d2-examples.md`.
 
-| Level | Name | Audience | Scope | Connector Labels |
-|---|---|---|---|---|
-| **L1** | Landscape | Exec, customer | All products + major external dependencies | Short noun phrases |
-| **L2** | Architecture | Engineering leads | One product/system + its integrations | Verb phrases ("ingests", "queries") |
-| **L3** | Deployment | DevOps, cloud architects | Infrastructure: VPCs, AZs, GovCloud, IAM | Protocol + port |
-| **L4** | Component | Developers | Internals of one container: classes, APIs, modules | Method/event names |
+## Palette Options
 
-**Level selection**: Default L2. L1 for exec briefings. L3 for AWS/GovCloud/VPC infrastructure. L4 rarely, for deep-dives only. Never combine levels in a single diagram -- produce separate diagrams and drill down.
+Choose based on the audience and output context. Default to **dark** for engineering diagrams.
 
-## Output Format
+### Dark (engineering / technical audiences)
 
-Structure every generated D2 file in this exact order:
-
-```
-1. Header comment block (# LEVEL, # AUDIENCE, # COMPLIANCE, # Shows)
-2. direction: right|down
-3. vars: { d2-config, Bluestaq Navy palette }
-4. classes: { Bluestaq class library + diagram-specific classes }
-5. Top-level nodes (actors, external services)
-6. Container hierarchy (nested 3+ levels deep)
-7. Connections (grouped by category with comments)
-```
-
-After the code block, include the render command. Always generate a single self-contained `.d2` file.
-
-Header comment template:
 ```d2
-# LEVEL: <L1 | L2 | L3 | L4>
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:      "#1C2F4A"   surface:  "#162646"   text:      "#D6D6DA"
+  primary: "#385FAF"   accent:   "#9CADD7"   highlight: "#F5871F"
+  muted:   "#739BCF"   success:  "#4CAF80"   danger:    "#E24B4A"
+  text-light: "#FFFFFF"
+}
+```
+
+### Light (presentations / mixed audiences)
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 0; layout-engine: elk }
+  bg:      "#FFFFFF"   surface:  "#F3F4F6"   text:      "#111827"
+  primary: "#2563EB"   accent:   "#7C3AED"   highlight: "#F59E0B"
+  muted:   "#6B7280"   success:  "#16A34A"   danger:    "#DC2626"
+  text-light: "#FFFFFF"
+}
+```
+
+### Minimal (formal docs / print)
+
+```d2
+vars: {
+  d2-config: { sketch: false; theme-id: 0; layout-engine: elk }
+  bg:      "#FFFFFF"   surface:  "#F9FAFB"   text:      "#1F2937"
+  primary: "#374151"   accent:   "#6B7280"   highlight: "#EF4444"
+  muted:   "#9CA3AF"   success:  "#059669"   danger:    "#DC2626"
+  text-light: "#FFFFFF"
+}
+```
+
+For additional palettes and full color semantics, see `references/d2-style-guide.md` → Palette Options.
+
+## Core Template
+
+Every diagram uses this structure order — never deviate from it:
+
+```d2
+# DIAGRAM TYPE: <Architecture | Sequence | ER | Flowchart | State Machine | Org Chart | ...>
 # AUDIENCE: <who reads this>
-# COMPLIANCE: <FedRAMP High | IL4 | IL5 | ITAR | none>
 # Shows: <one sentence>
-```
 
-## Quick Start Template
-
-```d2
-direction: right
+direction: right   # or: down
 
 vars: {
   d2-config: {
-    sketch: true
-    theme-id: 200
-    layout-engine: elk
+    sketch: true           # false for formal/print output
+    theme-id: 200          # 200 = dark terminal, 0 = light
+    layout-engine: elk     # elk for most diagrams; sequence_diagram uses dagre internally
   }
-  # Bluestaq Navy palette
-  primary:    "#162646"
-  secondary:  "#385FAF"
-  accent:     "#9CADD7"
-  surface:    "#1C2F4A"
-  text:       "#D6D6DA"
-  text-light: "#FFFFFF"
-  muted:      "#739BCF"
-  orange:     "#F5871F"
-  success:    "#4CAF80"
-  warning:    "#F5871F"
-  danger:     "#E24B4A"
+  # palette vars here (copy from Palette Options above)
 }
 
 classes: {
-  # --- Connection classes ---
-  sync-connection: { style: { stroke: ${secondary}; stroke-width: 2 } }
-  async-connection: { style: { stroke: ${accent}; stroke-dash: 5; animated: true; stroke-width: 2 } }
-  critical-path: { style: { stroke: ${orange}; stroke-width: 3; bold: true } }
-
-  # --- Node classes ---
-  internal-service: {
-    style: {
-      fill: ${surface}; stroke: ${secondary}; stroke-width: 2
-      font-color: ${text}; border-radius: 6; shadow: true
-    }
-  }
-  external-node: {
-    style: {
-      fill: ${surface}; stroke: ${orange}; stroke-width: 2
-      font-color: ${text}; border-radius: 6
-    }
-  }
-  microservice: {
-    shape: hexagon
-    style: { fill: ${surface}; stroke: ${secondary}; stroke-width: 2; font-color: ${text} }
-  }
-  datastore: {
-    shape: cylinder; width: 160; height: 130
-    label.near: outside-bottom-center
-    style: { fill: ${surface}; stroke: ${secondary}; font-color: ${text}; shadow: true }
-  }
-  queue: {
-    shape: queue; width: 120; height: 70
-    style: { fill: ${surface}; stroke: ${muted}; font-color: ${text} }
-  }
-  actor: {
-    shape: person; width: 100; height: 80
-    style: { fill: ${surface}; stroke: ${muted}; font-color: ${text} }
-  }
-  aws-service: {
-    shape: cloud; width: 130; height: 85
-    style: { fill: ${surface}; stroke: ${accent}; font-color: ${text} }
-  }
-
-  # --- Container classes ---
-  account-boundary: {
-    style: {
-      fill: ${primary}; stroke: ${secondary}; stroke-width: 2
-      font-color: ${text-light}; border-radius: 16; opacity: 0.95; bold: true
-    }
-  }
-  vpc-container: {
-    style: {
-      fill: "#0E1829"; stroke: ${muted}; stroke-dash: 4
-      font-color: ${muted}; border-radius: 12; opacity: 0.9; bold: true
-    }
-  }
-  service-group: {
-    style: {
-      fill: ${surface}; stroke: ${secondary}; stroke-dash: 3
-      font-color: ${text}; border-radius: 8; opacity: 0.85; bold: true
-    }
-  }
-  security-boundary: {
-    style: {
-      fill: "transparent"; stroke: ${orange}; stroke-dash: 6; stroke-width: 2
-      font-color: ${orange}; border-radius: 4; bold: true
-    }
-  }
-
-  # --- Connector classes ---
-  data-flow: { style: { stroke: ${accent}; stroke-width: 2; animated: true } }
-  monitoring-link: { style: { stroke: "#494C4D"; stroke-dash: 3; stroke-width: 1 } }
-  replication: { style: { stroke: ${muted}; stroke-dash: 4; stroke-width: 2; animated: true } }
-  boundary-crossing: { style: { stroke: ${orange}; stroke-width: 2; stroke-dash: 2 } }
+  # All style classes defined here
+  # See references/d2-style-guide.md > "Default Class Library" for the full reusable set
 }
+
+# 1. Top-level standalone nodes (actors, external systems)
+# 2. Container hierarchy (outermost → innermost)
+# 3. All connections grouped by semantic type
 ```
 
-**Extending the template**: Define diagram-specific classes that build on these. Don't redefine from scratch -- add classes like `pipeline-step`, `firewall`, `trust-zone` that reference the same `${vars}`.
-
-## Bluestaq Navy Palette
-
-| Color | Hex | Use |
-|---|---|---|
-| Navy `${primary}` | `#162646` | Outermost containers, AWS account/VPC wrappers |
-| Blue 1 `${secondary}` | `#385FAF` | Internal service borders, connectors |
-| Blue 3 `${accent}` | `#9CADD7` | Active data flow connectors, metadata labels |
-| BG elevated `${surface}` | `#1C2F4A` | Node fills (dark mode) |
-| Grey 2 `${text}` | `#D6D6DA` | All node labels |
-| Orange `${orange}` | `#F5871F` | External/entry-point borders, critical path only |
-| Grey 3 | `#494C4D` | Passive/monitoring connectors |
-
-Orange is stroke/border only. Never use `style.fill: ${orange}`.
-
-## Style Classes Library
-
-17 Bluestaq classes organized by category:
-
-| Class | Shape | Key Visual | Use |
-|-------|-------|-----------|-----|
-| `sync-connection` | edge | Blue 1 solid | Request/response, REST, gRPC |
-| `async-connection` | edge | Blue 3 dashed, animated | Events, pub/sub, SQS |
-| `critical-path` | edge | Orange thick | Errors, alerts -- use sparingly |
-| `data-flow` | edge | Blue 3 solid, animated | Active data movement |
-| `monitoring-link` | edge | Grey 3 dashed | Metrics, logs, passive |
-| `replication` | edge | Blue 2 dashed, animated | DB replication, S3 sync |
-| `boundary-crossing` | edge | Orange dash-2 | Trust/security boundary crossing |
-| `internal-service` | rect | Surface fill, Blue 1 border | Bluestaq-owned services |
-| `external-node` | rect | Surface fill, Orange border | External systems, entry points |
-| `microservice` | hexagon | Surface fill, Blue 1 border | Independent services |
-| `datastore` | cylinder | 160x130, shadow | Databases, object stores |
-| `queue` | queue | 120x70, Blue 2 border | Message queues, event buses |
-| `actor` | person | 100x80, Blue 2 border | Human actors |
-| `aws-service` | cloud | 130x85, Blue 3 border | AWS managed services |
-| `account-boundary` | container | Navy fill, bold | AWS account, GovCloud boundary |
-| `vpc-container` | container | Deep navy, dashed | VPC, network zone |
-| `service-group` | container | Surface fill, dashed | Logical service clusters |
-| `security-boundary` | container | Transparent, Orange dashed | FedRAMP, IL, ITAR boundary |
-
-## Icon Usage
-
-Base URL: `https://icons.terrastruct.com/`
-
-Apply icons to rectangle, cloud, cylinder, and queue shapes only. Polygons (hexagon, diamond, person, circle) distort with icons -- use text-only labels for those. D2 only supports one `class` per node, so use `class` for dimensions and `style` block for colors.
-
-Five most-used icon paths:
-
-| Service | Path |
-|---------|------|
-| Docker | `dev%2Fdocker.svg` |
-| Kubernetes | `azure%2F_Companies%2FKubernetes.svg` |
-| PostgreSQL | `dev%2Fpostgresql.svg` |
-| Redis | `dev%2Fredis.svg` |
-| GitHub | `dev%2Fgithub.svg` |
-
-For the full icon library (AWS, GCP, Azure, dev tools -- 40+ verified URLs), see `references/d2-style-guide.md` > "Icon Quick Reference".
-
-## Shape Selection Guide
-
-| Concept | D2 Shape | When to Use |
-|---------|----------|-------------|
-| Database / data store | `cylinder` | Any persistent storage |
-| Cloud service | `cloud` | External/managed services |
-| Message queue | `queue` | SQS, RabbitMQ, Kafka topics |
-| Process step | `step` | Pipeline/CI-CD stages |
-| Decision point | `diamond` | Conditional branching |
-| User/actor | `person` | Human actors |
-| Microservice | `hexagon` | Independent services |
-| DB table | `sql_table` | ER diagrams with columns |
-| Annotation | `callout` | Notes, explanations |
-
-For the full shape-icon compatibility matrix, see `references/d2-style-guide.md` > "Shape-Icon Compatibility".
-
-## Structural Best Practices
-
-### Define Containers Before Connections
-
-Declare all containers and their internal nodes first, then draw connections at the bottom. This gives ELK the full hierarchy before routing edges.
-
-### Container Label Fix
-
-When using `direction: right` on a container, add `label.near: outside-top-center` to prevent the container title from being obscured by children.
-
-## Render Command
+## Render Commands
 
 ```bash
+# Dark + sketch (default)
 d2 --sketch --theme 200 --layout elk input.d2 output.svg
+
+# Light mode
+d2 --theme 0 --layout elk input.d2 output.svg
+
+# Watch mode (live preview while editing)
+d2 --layout elk -w input.d2 output.svg
+
+# Multi-board animation
+d2 --layout elk --animate-interval 1200 input.d2 output.svg
+
+# Formal / print (no sketch, PDF)
+d2 --theme 0 --layout elk input.d2 output.pdf
 ```
 
-Common flags: `--sketch`, `--theme 200`, `--layout elk`, `--animate-interval 1200` (for multi-board), `-w` (watch mode).
+Always output the render command after the code block.
 
-## Common Pitfalls and Anti-Patterns
+## Key Rules
 
-### D2 Engine Pitfalls
-- **ELK `near` limitation**: Only constant values (`top-left`, `top-right`, etc.); no node references.
-- **Broken icon URLs**: `dev%2Fterraform.svg` returns 403. Verify new URLs before use.
-- **Connections after containers**: Define structure first, then draw connections. Mixing confuses ELK.
-- **Shaped node distortion**: Non-rectangular shapes distort with long labels. Use 1-2 word labels + `width`/`height` constraints.
-- **Decimal stroke-width**: D2 v0.7.x rejects `stroke-width: 2`. Use integer values only (1, 2, 3).
+- **Connections always last** — mixing edge declarations with node declarations confuses ELK routing
+- **Default to ELK** — always pass `layout-engine: elk` or `--layout elk` unless `sequence_diagram` is in use
+- **`sequence_diagram` is the only exception** — D2 uses dagre internally for sequences regardless of config
+- **Classes over inline styles** — never repeat `fill`/`stroke`/`font-color` on individual nodes; define a class
+- **One `class` per node** — D2 supports only one; use `class` for shape/dimensions, a `style` block for color overrides
+- **Integer `stroke-width` only** — D2 v0.7.x rejects decimal values (use 1, 2, 3 — not 1.5)
+- **Icons on rectangular shapes only** — hexagon, diamond, person, circle distort icons; use text-only labels
+- **`label.near: outside-top-center`** on containers with `direction: right` to prevent title overlap with children
+- **`multiple: true`** to represent N replicated instances without drawing each individually
 
-### Bluestaq Anti-Patterns
-- **Never combine levels** -- L2 services and L3 VPC subnets on the same canvas. Split them.
-- **Never use orange as a fill** -- orange is stroke/border only. `style.fill: ${orange}` is always wrong.
-- **Never use legacy palettes** (Ocean Depths, Forest Canopy, etc.) -- always Bluestaq Navy.
-- **Never mix sync and async on the same edge** -- pick one semantic per connection.
-- **Never put classification markings in node labels** -- use a separate cover document.
-- **Never produce a single mega-diagram** -- prefer drill-down hierarchy across multiple diagrams.
-- **Never skip the header comment block** -- level and audience determine everything.
-- **Avoid bidirectional arrows** -- use two separate edges if directions carry different semantics.
-- **Avoid unlabeled boundary crossings** -- every edge crossing a trust zone must have a protocol label.
+## References
 
-## Deep Dives
-
-For comprehensive reference material, see:
-- **Style guide**: `references/d2-style-guide.md` -- all style properties, Bluestaq class library (full D2 code), ELK-specific config, animation patterns, grid layouts, composition/multi-board, abstraction hierarchy details, connector reference, security boundary notation, required diagram elements, anti-patterns, AWS cloud patterns, Kubernetes topology patterns, icon quick reference tables, shape-icon compatibility matrix
-- **Worked examples**: `references/d2-examples.md` -- 8 complete Bluestaq diagrams: L1 System Landscape, L2 Architecture, L3 Deployment, L2 Data Flow, L2 Sequence, L3 Network/Security, ER Diagram, Decision Flowchart
+- **`references/d2-style-guide.md`** — Complete D2 syntax: all style properties, shape catalog, palette options and color semantics, icon library (40+ verified URLs), ELK config, grid layouts, animation patterns, composition/multi-board (layers/scenarios/steps), glob patterns. Read when you need syntax details or icon URLs.
+- **`references/d2-examples.md`** — Full renderable examples for every diagram type: Architecture (L1–L3), Sequence, ER, Flowchart, Data Flow, Network/Security, State Machine, Org Chart, Class Diagram, Roadmap/Timeline. Read when starting any specific diagram type.

@@ -3,8 +3,15 @@
 ## Table of Contents
 
 - [All Style Properties](#all-style-properties)
-- [Bluestaq Navy Palette](#bluestaq-navy-palette)
-- [Bluestaq Class Library](#bluestaq-class-library)
+- [Palette Options](#palette-options)
+  - Dark · Light · Minimal
+  - [Nord](#nord-arctic-blue-grey--calm-developer-friendly) · [Dracula](#dracula-purple-dark--dev-favorite-vibrant) · [Solarized Dark](#solarized-dark-warm-earthy-dark--classic-balanced)
+  - [Sakura](#sakura-soft-pink--playful-design-teams-product) · [Obsidian](#obsidian-near-black--premium-security-luxury-tech)
+  - [Midnight Forest](#midnight-forest-deep-green-dark--devops-sustainability-organic-tech) · [Amber Night](#amber-night-warm-amber-dark--retro-terminal-monitoring-alerting)
+  - [Evergreen](#evergreen-light-green--eco-health-growth-sustainability) · [Slate & Coral](#slate--coral-neutral-light--modern-saas-engineering-docs-product)
+  - [High Contrast](#high-contrast-accessibility-first--universal-wcag-aaa)
+  - [Quick-Pick by Context](#palette-quick-pick-by-context)
+- [Default Class Library](#default-class-library)
 - [Abstraction Hierarchy (L1-L4)](#abstraction-hierarchy-l1-l4)
 - [Connector Reference](#connector-reference)
 - [Security Boundary Notation](#security-boundary-notation)
@@ -112,9 +119,11 @@ my-container: {
 }
 ```
 
-## Bluestaq Navy Palette
+## Palette Options
 
-The single palette for all Bluestaq diagrams. Never use legacy palettes (Ocean Depths, Forest Canopy, Sunset Ember, Arctic Frost, Berry Noir, Slate Modern).
+Choose a palette based on your audience and output context. All palettes use the same variable names so classes are portable across them.
+
+### Dark (engineering / technical audiences)
 
 ```d2
 vars: {
@@ -123,47 +132,297 @@ vars: {
     theme-id: 200
     layout-engine: elk
   }
-
-  # Bluestaq Navy -- primary brand palette
-  primary:    "#162646"   # Navy -- deep containers, primary nodes
-  secondary:  "#385FAF"   # Blue 1 -- internal service borders, connectors
-  accent:     "#9CADD7"   # Blue 3 -- active data flow connectors, labels
-  surface:    "#1C2F4A"   # BG elevated -- card/node fill on dark canvas
-  text:       "#D6D6DA"   # Grey 2 -- all body labels (AAA on dark bg)
-  text-light: "#FFFFFF"   # White -- labels on primary/secondary fills
-  muted:      "#739BCF"   # Blue 2 -- sublabels, metadata, group borders
-
-  # Orange -- use sparingly (CTAs, external entry points, critical paths only)
-  orange:     "#F5871F"
-
-  # Semantic
+  bg:         "#1C2F4A"   # node fill on dark canvas
+  surface:    "#162646"   # deep containers, outermost wrappers
+  text:       "#D6D6DA"   # all body labels (AAA contrast on dark bg)
+  text-light: "#FFFFFF"   # labels on dark fills (surface, primary)
+  primary:    "#385FAF"   # internal borders, sync connectors
+  accent:     "#9CADD7"   # data-flow connectors, metadata labels
+  muted:      "#739BCF"   # sublabels, passive connectors, group borders
+  highlight:  "#F5871F"   # external borders, critical paths (stroke only)
   success:    "#4CAF80"
-  warning:    "#F5871F"   # same as orange -- intentional
   danger:     "#E24B4A"
 }
 ```
 
-### Color Semantics
+### Light (presentations / mixed audiences)
 
-| Color | Hex | Use |
-|---|---|---|
-| Navy `${primary}` | `#162646` | Outermost containers, AWS account/VPC wrappers |
-| Blue 1 `${secondary}` | `#385FAF` | Internal service borders, connectors |
-| Blue 3 `${accent}` | `#9CADD7` | Active data flow connectors, metadata labels |
-| BG elevated `${surface}` | `#1C2F4A` | Node fills (dark mode) |
-| Grey 2 `${text}` | `#D6D6DA` | All node labels |
-| Orange `${orange}` | `#F5871F` | External/entry-point borders, critical path only |
-| Grey 3 | `#494C4D` | Passive/monitoring connectors |
+```d2
+vars: {
+  d2-config: {
+    sketch: true
+    theme-id: 0
+    layout-engine: elk
+  }
+  bg:         "#FFFFFF"
+  surface:    "#F3F4F6"
+  text:       "#111827"
+  text-light: "#FFFFFF"
+  primary:    "#2563EB"
+  accent:     "#7C3AED"
+  muted:      "#6B7280"
+  highlight:  "#F59E0B"
+  success:    "#16A34A"
+  danger:     "#DC2626"
+}
+```
 
-**Contrast rules**: Use `${text-light}` (#FFFFFF) on dark fills (`${primary}`, `${secondary}`). Use `${text}` (#D6D6DA) on `${surface}` fills. Orange is stroke/border only -- never use `style.fill: ${orange}`.
+### Minimal (formal docs / print)
 
-### Dark Mode Note
+```d2
+vars: {
+  d2-config: {
+    sketch: false
+    theme-id: 0
+    layout-engine: elk
+  }
+  bg:         "#FFFFFF"
+  surface:    "#F9FAFB"
+  text:       "#1F2937"
+  text-light: "#FFFFFF"
+  primary:    "#374151"
+  accent:     "#6B7280"
+  muted:      "#9CA3AF"
+  highlight:  "#EF4444"
+  success:    "#059669"
+  danger:     "#DC2626"
+}
+```
 
-Bluestaq Navy IS the dark theme (theme-id 200 / Terminal). No separate dark mode variant needed.
+### Nord (Arctic blue-grey — calm, developer-friendly)
 
-## Bluestaq Class Library
+Inspired by the Nord color scheme. Great for engineering docs and dev tooling diagrams.
 
-17 classes organized by category. Include in every diagram.
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:         "#3B4252"   # nord1 — node fill
+  surface:    "#2E3440"   # nord0 — container background
+  text:       "#ECEFF4"   # nord6 — primary text
+  text-light: "#ECEFF4"
+  primary:    "#5E81AC"   # nord10 — blue
+  accent:     "#88C0D0"   # nord8 — frost light blue
+  muted:      "#81A1C1"   # nord9 — frost blue
+  highlight:  "#EBCB8B"   # nord13 — yellow
+  success:    "#A3BE8C"   # nord14 — green
+  danger:     "#BF616A"   # nord11 — red
+}
+```
+
+### Dracula (purple-dark — dev-favorite, vibrant)
+
+Based on the Dracula theme. High visibility, works great for sequence and flow diagrams.
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:         "#282A36"   # background
+  surface:    "#21222C"   # darker background
+  text:       "#F8F8F2"   # foreground
+  text-light: "#F8F8F2"
+  primary:    "#6272A4"   # comment — blue-grey
+  accent:     "#8BE9FD"   # cyan
+  muted:      "#44475A"   # current line
+  highlight:  "#FFB86C"   # orange
+  success:    "#50FA7B"   # green
+  danger:     "#FF5555"   # red
+}
+```
+
+### Solarized Dark (warm earthy-dark — classic, balanced)
+
+Based on Ethan Schoonover's Solarized. Scientifically tuned contrast, reduces eye strain.
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:         "#073642"   # base02
+  surface:    "#002B36"   # base03
+  text:       "#839496"   # base0
+  text-light: "#EEE8D5"   # base2
+  primary:    "#268BD2"   # blue
+  accent:     "#2AA198"   # cyan
+  muted:      "#586E75"   # base01
+  highlight:  "#CB4B16"   # orange
+  success:    "#859900"   # green
+  danger:     "#DC322F"   # red
+}
+```
+
+### Sakura (soft pink — playful, design teams, product)
+
+Light palette with warm rose tones. Great for product roadmaps, org charts, and design-audience diagrams.
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 0; layout-engine: elk }
+  bg:         "#FFF5F7"
+  surface:    "#FFE4ED"
+  text:       "#2D1515"
+  text-light: "#FFF5F7"
+  primary:    "#D4618A"   # rose
+  accent:     "#9B5DE5"   # violet
+  muted:      "#C89AB5"   # mauve
+  highlight:  "#F15BB5"   # hot pink
+  success:    "#00BBF9"   # sky blue
+  danger:     "#FF0054"
+}
+```
+
+### Obsidian (near-black — premium, security, luxury tech)
+
+Ultra-dark with indigo accents. Ideal for security topology, infrastructure, and high-stakes engineering diagrams.
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:         "#141414"
+  surface:    "#0A0A0A"
+  text:       "#E8E8E8"
+  text-light: "#FFFFFF"
+  primary:    "#6366F1"   # indigo
+  accent:     "#A78BFA"   # violet
+  muted:      "#4B5563"
+  highlight:  "#F59E0B"   # amber
+  success:    "#10B981"
+  danger:     "#EF4444"
+}
+```
+
+### Midnight Forest (deep green-dark — devops, sustainability, organic tech)
+
+Dark teal-green base. Works well for data flows, pipeline diagrams, and green-tech contexts.
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:         "#0D1B1E"
+  surface:    "#132226"
+  text:       "#C8D8D1"
+  text-light: "#FFFFFF"
+  primary:    "#2E8B57"   # sea green
+  accent:     "#52D991"   # bright green
+  muted:      "#6B9F80"   # sage
+  highlight:  "#F4A233"   # amber
+  success:    "#52D991"
+  danger:     "#E05C5C"
+}
+```
+
+### Amber Night (warm amber-dark — retro terminal, monitoring, alerting)
+
+Inspired by vintage amber phosphor terminals. Strong character for monitoring dashboards and incident flows.
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:         "#1C1400"
+  surface:    "#231900"
+  text:       "#FFD98E"
+  text-light: "#FFF3C4"
+  primary:    "#B8760A"   # golden brown
+  accent:     "#FFAA00"   # bright amber
+  muted:      "#8A6520"
+  highlight:  "#FF6B35"   # orange-red
+  success:    "#6BBF59"
+  danger:     "#E04444"
+}
+```
+
+### Evergreen (light green — eco, health, growth, sustainability)
+
+Fresh light palette. Ideal for org charts, product diagrams, and sustainability / health-sector audiences.
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 0; layout-engine: elk }
+  bg:         "#F0FAF5"
+  surface:    "#DCFCE7"
+  text:       "#14532D"
+  text-light: "#FFFFFF"
+  primary:    "#16A34A"   # green-600
+  accent:     "#0284C7"   # blue-600
+  muted:      "#4ADE80"
+  highlight:  "#DC2626"
+  success:    "#166534"
+  danger:     "#B91C1C"
+}
+```
+
+### Slate & Coral (neutral-light — modern SaaS, engineering docs, product)
+
+Clean and professional with a warm highlight. The default choice when the audience is mixed and the output will be embedded in documentation or presentations.
+
+```d2
+vars: {
+  d2-config: { sketch: true; theme-id: 0; layout-engine: elk }
+  bg:         "#F8FAFC"   # slate-50
+  surface:    "#F1F5F9"   # slate-100
+  text:       "#0F172A"   # slate-900
+  text-light: "#FFFFFF"
+  primary:    "#475569"   # slate-600
+  accent:     "#6366F1"   # indigo
+  muted:      "#94A3B8"   # slate-400
+  highlight:  "#F97316"   # orange
+  success:    "#059669"
+  danger:     "#E11D48"
+}
+```
+
+### High Contrast (accessibility-first — universal, WCAG AAA)
+
+Every color pair meets WCAG AAA (7:1) on white. Use when diagrams will be printed, projected, or viewed by audiences with visual impairments.
+
+```d2
+vars: {
+  d2-config: { sketch: false; theme-id: 0; layout-engine: elk }
+  bg:         "#FFFFFF"
+  surface:    "#F0F0F0"
+  text:       "#000000"
+  text-light: "#FFFFFF"
+  primary:    "#0057B8"   # 7:1+ contrast on white
+  accent:     "#5B2D8E"   # high-contrast purple
+  muted:      "#767676"   # exactly 4.5:1 on white
+  highlight:  "#B05C00"   # dark orange (7:1+)
+  success:    "#0B6623"   # forest green
+  danger:     "#A4000F"   # dark red
+}
+```
+
+### Palette Quick-Pick by Context
+
+| Context                    | Recommended Palette         |
+| -------------------------- | --------------------------- |
+| Engineering / backend      | Dark, Nord, Dracula         |
+| Security / infrastructure  | Obsidian, Dark              |
+| Monitoring / alerting      | Amber Night, Dracula        |
+| DevOps / CI-CD             | Midnight Forest, Nord       |
+| Product / roadmap          | Slate & Coral, Sakura       |
+| Presentations / slides     | Light, Slate & Coral        |
+| Eco / health / green-tech  | Evergreen, Midnight Forest  |
+| Formal docs / print        | Minimal, High Contrast      |
+| Accessibility required     | High Contrast               |
+| Retro / terminal vibes     | Amber Night, Solarized Dark |
+| Creative / design audience | Sakura, Dracula             |
+
+### Color Semantics (all palettes)
+
+| Variable        | Role                                                            |
+| --------------- | --------------------------------------------------------------- |
+| `${bg}`         | Node / card fill                                                |
+| `${surface}`    | Container / wrapper fill                                        |
+| `${text}`       | All body labels                                                 |
+| `${text-light}` | Labels on dark-filled containers                                |
+| `${primary}`    | Internal borders, sync connectors                               |
+| `${accent}`     | Data-flow connectors, animated edges                            |
+| `${muted}`      | Passive links, metadata, group borders                          |
+| `${highlight}`  | External entry points, critical paths — stroke only, never fill |
+| `${success}`    | Healthy / complete states                                       |
+| `${danger}`     | Error / rejected states                                         |
+
+## Default Class Library
+
+17 reusable classes organized by category. Copy the full block into every diagram and extend with diagram-specific classes as needed.
 
 ### Connection Classes (3)
 
@@ -279,12 +538,12 @@ classes: {
 
 Every diagram must declare its level in a header comment. Default to L2 when scope is ambiguous.
 
-| Level | Name | Audience | Scope | Connector Labels |
-|---|---|---|---|---|
-| **L1** | **Landscape** | Exec, customer | All products + major external dependencies | Short noun phrases |
-| **L2** | **Architecture** | Engineering leads | One product/system + its integrations | Verb phrases ("ingests", "queries") |
-| **L3** | **Deployment** | DevOps, cloud architects | Infrastructure: VPCs, AZs, GovCloud, IAM | Protocol + port |
-| **L4** | **Component** | Developers | Internals of one container: classes, APIs, modules | Method/event names |
+| Level  | Name             | Audience                 | Scope                                              | Connector Labels                    |
+| ------ | ---------------- | ------------------------ | -------------------------------------------------- | ----------------------------------- |
+| **L1** | **Landscape**    | Exec, customer           | All products + major external dependencies         | Short noun phrases                  |
+| **L2** | **Architecture** | Engineering leads        | One product/system + its integrations              | Verb phrases ("ingests", "queries") |
+| **L3** | **Deployment**   | DevOps, cloud architects | Infrastructure: VPCs, AZs, GovCloud, IAM           | Protocol + port                     |
+| **L4** | **Component**    | Developers               | Internals of one container: classes, APIs, modules | Method/event names                  |
 
 ### Level Selection Rules
 
@@ -300,15 +559,15 @@ Complex systems get a diagram per level, not everything on one canvas. Produce L
 
 ## Connector Reference
 
-| Class | Stroke | Dash | Animated | Use |
-|---|---|---|---|---|
-| `sync-connection` | Blue 1 | solid | no | Request/response, REST, gRPC |
-| `async-connection` | Blue 3 | dashed | yes | Events, pub/sub, SQS, SNS |
-| `data-flow` | Blue 3 | solid | yes | Active data movement (ingest/share) |
-| `monitoring-link` | Grey 3 | dashed | no | Metrics, logs, CloudWatch, passive links |
-| `replication` | Blue 2 | dashed | yes | DB replication, S3 sync |
-| `critical-path` | Orange | solid | no | Critical path, errors, alerts -- use sparingly |
-| `boundary-crossing` | Orange | dash-2 | no | Traffic crossing a trust or security boundary |
+| Class               | Stroke | Dash   | Animated | Use                                            |
+| ------------------- | ------ | ------ | -------- | ---------------------------------------------- |
+| `sync-connection`   | Blue 1 | solid  | no       | Request/response, REST, gRPC                   |
+| `async-connection`  | Blue 3 | dashed | yes      | Events, pub/sub, SQS, SNS                      |
+| `data-flow`         | Blue 3 | solid  | yes      | Active data movement (ingest/share)            |
+| `monitoring-link`   | Grey 3 | dashed | no       | Metrics, logs, CloudWatch, passive links       |
+| `replication`       | Blue 2 | dashed | yes      | DB replication, S3 sync                        |
+| `critical-path`     | Orange | solid  | no       | Critical path, errors, alerts -- use sparingly |
+| `boundary-crossing` | Orange | dash-2 | no       | Traffic crossing a trust or security boundary  |
 
 ### Label Rules by Level
 
@@ -333,43 +592,40 @@ Include only when the diagram is a customer-facing deliverable requiring complia
 
 ### IL Boundary Color Convention
 
-| Scope | Container border | Label |
-|---|---|---|
-| Unclassified / FedRAMP | Orange dashed (`${orange}`) | "FedRAMP High boundary" |
-| IL4 | Orange dashed | "IL4 boundary" |
-| IL5 | Orange dashed + stroke-width: 3 | "IL5 boundary" |
-| ITAR | Orange dashed + stroke-dash: 2 | "ITAR boundary" |
+| Scope                  | Container border                | Label                   |
+| ---------------------- | ------------------------------- | ----------------------- |
+| Unclassified / FedRAMP | Orange dashed (`${orange}`)     | "FedRAMP High boundary" |
+| IL4                    | Orange dashed                   | "IL4 boundary"          |
+| IL5                    | Orange dashed + stroke-width: 3 | "IL5 boundary"          |
+| ITAR                   | Orange dashed + stroke-dash: 2  | "ITAR boundary"         |
 
 ## Required Diagram Elements
 
-Every Bluestaq diagram must include:
+Every diagram must include:
 
-1. **Header comment block** -- level, audience, compliance scope (if applicable), what it shows
-2. **vars block** -- full Bluestaq Navy palette (never legacy palettes)
-3. **classes block** -- full Bluestaq class library
-4. **Legend** (L3 and network diagrams only) -- callout node listing connector and border meanings
-5. **Render command** -- after the code block
+1. **Header comment block** — diagram type, audience, what it shows
+2. **vars block** — chosen palette (dark / light / minimal or custom)
+3. **classes block** — default class library plus any diagram-specific classes
+4. **Legend** (network and security diagrams only) — callout node listing connector and border meanings
+5. **Render command** — after the code block
 
 ```d2
-# LEVEL: <L1 | L2 | L3 | L4>
+# DIAGRAM TYPE: <Architecture | Sequence | ER | Flowchart | State Machine | Org Chart | ...>
 # AUDIENCE: <who reads this>
-# COMPLIANCE: <FedRAMP High | IL4 | IL5 | ITAR | none>
 # Shows: <one sentence>
 ```
 
 ## Anti-Patterns
 
-### Bluestaq Anti-Patterns
+### Diagram Design Anti-Patterns
 
-- **Never combine levels** -- L2 services and L3 VPC subnets on the same canvas. Split them.
-- **Never use orange as a fill** -- orange is stroke/border only. `style.fill: ${orange}` is always wrong.
-- **Never use legacy palettes** (Ocean Depths, Forest Canopy, etc.) -- always Bluestaq Navy.
+- **Never mix abstraction levels** -- infrastructure VPCs and application services on the same canvas. Split into separate diagrams.
+- **Never use `${highlight}` as a fill** -- it is stroke/border only; `style.fill: ${highlight}` is always wrong.
 - **Never mix sync and async on the same edge** -- pick one semantic per connection.
-- **Never put classification markings in node labels** -- use a separate cover document.
 - **Never produce a single mega-diagram** -- prefer drill-down hierarchy across multiple diagrams.
-- **Never skip the header comment block** -- level and audience determine everything.
+- **Never skip the header comment block** -- type and audience determine layout and connector label style.
 - **Avoid bidirectional arrows** -- use two separate edges if directions carry different semantics.
-- **Avoid unlabeled boundary crossings** -- every edge crossing a trust zone must have a protocol label.
+- **Avoid unlabeled boundary crossings** -- every edge crossing a trust zone must carry a protocol label.
 
 ### D2 Engine Pitfalls
 
@@ -382,6 +638,7 @@ Every Bluestaq diagram must include:
 ## Font Recommendations
 
 D2 supports `font` property with two values:
+
 - Default sans-serif (used automatically)
 - `"mono"` for monospace
 
@@ -396,7 +653,7 @@ api-endpoint: "GET /api/v1/users" {
 
 ## ELK-Specific Configuration
 
-ELK (Eclipse Layout Kernel) is the default layout engine for all Bluestaq diagrams.
+ELK (Eclipse Layout Kernel) is the default layout engine for all diagrams except `sequence_diagram` (which uses dagre internally regardless of config).
 
 ### Container Width/Height (ELK-Exclusive)
 
@@ -451,6 +708,7 @@ producer -> queue: events {
 ```
 
 Best practices:
+
 - Use animated connections for async/event-driven flows
 - Pair with `stroke-dash` for visual distinction from sync connections
 - Don't animate every connection -- reserve for emphasis
@@ -727,11 +985,11 @@ Render steps with animation: `d2 --animate-interval 1500 flow.d2 flow.svg`
 
 ### When to Use Each
 
-| Mechanism | Inheritance | Best For |
-|-----------|-------------|----------|
-| `layers` | None | Independent views of same system |
-| `scenarios` | From base board | Deployment variants, failure modes |
-| `steps` | From previous step | Animated walkthroughs, request flows |
+| Mechanism   | Inheritance        | Best For                             |
+| ----------- | ------------------ | ------------------------------------ |
+| `layers`    | None               | Independent views of same system     |
+| `scenarios` | From base board    | Deployment variants, failure modes   |
+| `steps`     | From previous step | Animated walkthroughs, request flows |
 
 ## Fill Pattern Reference
 
@@ -1007,14 +1265,16 @@ formula: |latex
 
 ### Code Blocks in Labels
 
-```d2
+````d2
 config: |md
   ```yaml
   replicas: 3
   memory: 2Gi
   cpu: 500m
-  ```
+````
+
 |
+
 ```
 
 ## Icon Position Control
@@ -1022,10 +1282,12 @@ config: |md
 The `near` keyword places labels and standalone nodes relative to other elements. Available positions:
 
 ```
-top-left      top-center      top-right
-center-left   center-center   center-right
-bottom-left   bottom-center   bottom-right
-```
+
+top-left top-center top-right
+center-left center-center center-right
+bottom-left bottom-center bottom-right
+
+````
 
 Also available for `label.near`: `outside-top-left`, `outside-top-center`, `outside-top-right`, `outside-bottom-left`, `outside-bottom-center`, `outside-bottom-right`, `outside-left-center`, `outside-right-center`.
 
@@ -1038,7 +1300,7 @@ server: App Server {
   tooltip: "Runs on EC2 t3.large\n4 vCPU, 8 GB RAM"
   link: https://console.aws.amazon.com/ec2
 }
-```
+````
 
 ## Direction Control
 
@@ -1096,27 +1358,27 @@ queue: Event Queue {
 
 ### Safe for Icons (with dimension constraints)
 
-| Shape | Constraints | Notes |
-|-------|-------------|-------|
-| **Rectangle** (default) | None needed | Built-in text padding, icons never overlap |
-| **Cloud** | `width: 130, height: 85` | Prevents icon-text overlap |
-| **Cylinder** | `width: 160, height: 130` + `label.near: outside-bottom-center` | Text below the cylinder |
-| **Queue** | `width: 120, height: 70` | Prevents icon-text overlap |
-| **Step** | Short label (1-2 words) | Works for pipeline stages |
+| Shape                   | Constraints                                                     | Notes                                      |
+| ----------------------- | --------------------------------------------------------------- | ------------------------------------------ |
+| **Rectangle** (default) | None needed                                                     | Built-in text padding, icons never overlap |
+| **Cloud**               | `width: 130, height: 85`                                        | Prevents icon-text overlap                 |
+| **Cylinder**            | `width: 160, height: 130` + `label.near: outside-bottom-center` | Text below the cylinder                    |
+| **Queue**               | `width: 120, height: 70`                                        | Prevents icon-text overlap                 |
+| **Step**                | Short label (1-2 words)                                         | Works for pipeline stages                  |
 
 ### Avoid Icons (use text-only labels)
 
-| Shape | Reason |
-|-------|--------|
-| **Circle** | Too small, icon dominates text |
-| **Hexagon** | Non-rectangular, stretches and distorts |
-| **Diamond** | Stretches to fit text, icon-text overlap |
-| **Person** | Polygon distorts with long labels |
-| **Oval** | Non-rectangular, icon overlap |
-| **Package** | Too compact for icon + text |
-| **Document** | Too compact for icon + text |
-| **Class** | Reserved for class diagram columns |
-| **SQL Table** | Columns take precedence, icons conflict |
+| Shape         | Reason                                   |
+| ------------- | ---------------------------------------- |
+| **Circle**    | Too small, icon dominates text           |
+| **Hexagon**   | Non-rectangular, stretches and distorts  |
+| **Diamond**   | Stretches to fit text, icon-text overlap |
+| **Person**    | Polygon distorts with long labels        |
+| **Oval**      | Non-rectangular, icon overlap            |
+| **Package**   | Too compact for icon + text              |
+| **Document**  | Too compact for icon + text              |
+| **Class**     | Reserved for class diagram columns       |
+| **SQL Table** | Columns take precedence, icons conflict  |
 
 ### One Class Per Node
 
@@ -1136,75 +1398,75 @@ Base URL: `https://icons.terrastruct.com/`
 
 ### AWS
 
-| Service | Path |
-|---------|------|
-| EC2 | `aws%2FCompute%2FAmazon-EC2.svg` |
-| Lambda | `aws%2FCompute%2FAWS-Lambda.svg` |
-| ECS | `aws%2FCompute%2FAmazon-Elastic-Container-Service.svg` |
-| EKS | `aws%2FCompute%2FAmazon-Elastic-Kubernetes-Service.svg` |
-| S3 | `aws%2FStorage%2FAmazon-Simple-Storage-Service-S3.svg` |
-| RDS | `aws%2FDatabase%2FAmazon-RDS.svg` |
-| DynamoDB | `aws%2FDatabase%2FAmazon-DynamoDB.svg` |
-| ElastiCache | `aws%2FDatabase%2FAmazon-ElastiCache.svg` |
-| SQS | `aws%2FApplication%20Integration%2FAmazon-Simple-Queue-Service-SQS.svg` |
-| SNS | `aws%2FApplication%20Integration%2FAmazon-Simple-Notification-Service-SNS.svg` |
-| CloudFront | `aws%2FNetworking%20%26%20Content%20Delivery%2FAmazon-CloudFront.svg` |
-| API Gateway | `aws%2FNetworking%20%26%20Content%20Delivery%2FAmazon-API-Gateway.svg` |
-| ELB | `aws%2FNetworking%20%26%20Content%20Delivery%2FElastic-Load-Balancing.svg` |
-| VPC | `aws%2FNetworking%20%26%20Content%20Delivery%2FAmazon-VPC.svg` |
-| Kafka (MSK) | `aws%2FAnalytics%2FAmazon-Managed-Streaming-for-Kafka.svg` |
-| Kinesis | `aws%2FAnalytics%2FAmazon-Kinesis.svg` |
-| OpenSearch | `aws%2FAnalytics%2FAmazon-OpenSearch-Service.svg` |
+| Service             | Path                                                                               |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| EC2                 | `aws%2FCompute%2FAmazon-EC2.svg`                                                   |
+| Lambda              | `aws%2FCompute%2FAWS-Lambda.svg`                                                   |
+| ECS                 | `aws%2FCompute%2FAmazon-Elastic-Container-Service.svg`                             |
+| EKS                 | `aws%2FCompute%2FAmazon-Elastic-Kubernetes-Service.svg`                            |
+| S3                  | `aws%2FStorage%2FAmazon-Simple-Storage-Service-S3.svg`                             |
+| RDS                 | `aws%2FDatabase%2FAmazon-RDS.svg`                                                  |
+| DynamoDB            | `aws%2FDatabase%2FAmazon-DynamoDB.svg`                                             |
+| ElastiCache         | `aws%2FDatabase%2FAmazon-ElastiCache.svg`                                          |
+| SQS                 | `aws%2FApplication%20Integration%2FAmazon-Simple-Queue-Service-SQS.svg`            |
+| SNS                 | `aws%2FApplication%20Integration%2FAmazon-Simple-Notification-Service-SNS.svg`     |
+| CloudFront          | `aws%2FNetworking%20%26%20Content%20Delivery%2FAmazon-CloudFront.svg`              |
+| API Gateway         | `aws%2FNetworking%20%26%20Content%20Delivery%2FAmazon-API-Gateway.svg`             |
+| ELB                 | `aws%2FNetworking%20%26%20Content%20Delivery%2FElastic-Load-Balancing.svg`         |
+| VPC                 | `aws%2FNetworking%20%26%20Content%20Delivery%2FAmazon-VPC.svg`                     |
+| Kafka (MSK)         | `aws%2FAnalytics%2FAmazon-Managed-Streaming-for-Kafka.svg`                         |
+| Kinesis             | `aws%2FAnalytics%2FAmazon-Kinesis.svg`                                             |
+| OpenSearch          | `aws%2FAnalytics%2FAmazon-OpenSearch-Service.svg`                                  |
 | IAM Identity Center | `aws%2FSecurity%2C%20Identity%2C%20%26%20Compliance%2FAWS-IAM-Identity-Center.svg` |
-| AWS General | `aws%2F_General%2FAWS-General_light-bg.svg` (403 -- broken) |
+| AWS General         | `aws%2F_General%2FAWS-General_light-bg.svg` (403 -- broken)                        |
 
 ### GCP
 
-| Service | Path |
-|---------|------|
-| Compute Engine | `gcp%2FProducts%20and%20services%2FCompute%2FCompute%20Engine.svg` |
-| Cloud Functions | `gcp%2FProducts%20and%20services%2FCompute%2FCloud%20Functions.svg` |
-| Cloud Run | `gcp%2FProducts%20and%20services%2FCompute%2FCloud%20Run.svg` |
-| App Engine | `gcp%2FProducts%20and%20services%2FCompute%2FApp%20Engine.svg` |
-| Cloud SQL | `gcp%2FProducts%20and%20services%2FDatabases%2FCloud%20SQL.svg` |
-| Cloud Storage | `gcp%2FProducts%20and%20services%2FStorage%2FCloud%20Storage.svg` |
-| Pub/Sub | `gcp%2FProducts%20and%20services%2FData%20Analytics%2FCloud%20PubSub.svg` |
-| BigQuery | `gcp%2FProducts%20and%20services%2FData%20Analytics%2FBigQuery.svg` |
+| Service         | Path                                                                      |
+| --------------- | ------------------------------------------------------------------------- |
+| Compute Engine  | `gcp%2FProducts%20and%20services%2FCompute%2FCompute%20Engine.svg`        |
+| Cloud Functions | `gcp%2FProducts%20and%20services%2FCompute%2FCloud%20Functions.svg`       |
+| Cloud Run       | `gcp%2FProducts%20and%20services%2FCompute%2FCloud%20Run.svg`             |
+| App Engine      | `gcp%2FProducts%20and%20services%2FCompute%2FApp%20Engine.svg`            |
+| Cloud SQL       | `gcp%2FProducts%20and%20services%2FDatabases%2FCloud%20SQL.svg`           |
+| Cloud Storage   | `gcp%2FProducts%20and%20services%2FStorage%2FCloud%20Storage.svg`         |
+| Pub/Sub         | `gcp%2FProducts%20and%20services%2FData%20Analytics%2FCloud%20PubSub.svg` |
+| BigQuery        | `gcp%2FProducts%20and%20services%2FData%20Analytics%2FBigQuery.svg`       |
 
 ### Azure
 
-| Service | Path |
-|---------|------|
-| SQL Database | `azure%2FDatabases%20Service%20Color%2FSQL%20Databases.svg` |
-| Cosmos DB | `azure%2FDatabases%20Service%20Color%2FAzure%20Cosmos%20DB.svg` |
-| Functions | `azure%2FCompute%20Service%20Color%2FFunction%20Apps.svg` |
-| Blob Storage | `azure%2FStorage%20Service%20Color%2FBlob%20Storage.svg` |
-| Load Balancer | `azure%2FNetworking%20Service%20Color%2FLoad%20Balancers.svg` |
-| Kubernetes | `azure%2FContainer%20Service%20Color%2FKubernetes%20Services.svg` |
-| Service Bus | `azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg` |
+| Service       | Path                                                                |
+| ------------- | ------------------------------------------------------------------- |
+| SQL Database  | `azure%2FDatabases%20Service%20Color%2FSQL%20Databases.svg`         |
+| Cosmos DB     | `azure%2FDatabases%20Service%20Color%2FAzure%20Cosmos%20DB.svg`     |
+| Functions     | `azure%2FCompute%20Service%20Color%2FFunction%20Apps.svg`           |
+| Blob Storage  | `azure%2FStorage%20Service%20Color%2FBlob%20Storage.svg`            |
+| Load Balancer | `azure%2FNetworking%20Service%20Color%2FLoad%20Balancers.svg`       |
+| Kubernetes    | `azure%2FContainer%20Service%20Color%2FKubernetes%20Services.svg`   |
+| Service Bus   | `azure%2FIntegration%20Service%20Color%2FAzure%20Service%20Bus.svg` |
 
 ### Dev Tools and Infra
 
-| Tool | Path |
-|------|------|
-| Docker | `dev%2Fdocker.svg` |
-| Kubernetes | `azure%2F_Companies%2FKubernetes.svg` |
-| Redis | `dev%2Fredis.svg` |
-| PostgreSQL | `dev%2Fpostgresql.svg` |
-| MySQL | `dev%2Fmysql.svg` |
-| MongoDB | `dev%2Fmongodb.svg` |
-| Nginx | `dev%2Fnginx.svg` |
-| GitHub | `dev%2Fgithub.svg` |
-| Python | `dev%2Fpython.svg` |
-| Go | `dev%2Fgo.svg` |
-| Node.js | `dev%2Fnodejs.svg` |
-| React | `dev%2Freact.svg` |
-| Terraform | `dev%2Fterraform.svg` (may be unavailable -- 403) |
+| Tool                 | Path                                                                  |
+| -------------------- | --------------------------------------------------------------------- |
+| Docker               | `dev%2Fdocker.svg`                                                    |
+| Kubernetes           | `azure%2F_Companies%2FKubernetes.svg`                                 |
+| Redis                | `dev%2Fredis.svg`                                                     |
+| PostgreSQL           | `dev%2Fpostgresql.svg`                                                |
+| MySQL                | `dev%2Fmysql.svg`                                                     |
+| MongoDB              | `dev%2Fmongodb.svg`                                                   |
+| Nginx                | `dev%2Fnginx.svg`                                                     |
+| GitHub               | `dev%2Fgithub.svg`                                                    |
+| Python               | `dev%2Fpython.svg`                                                    |
+| Go                   | `dev%2Fgo.svg`                                                        |
+| Node.js              | `dev%2Fnodejs.svg`                                                    |
+| React                | `dev%2Freact.svg`                                                     |
+| Terraform            | `dev%2Fterraform.svg` (may be unavailable -- 403)                     |
 | AWS Shield (for SGs) | `aws%2FSecurity%2C%20Identity%2C%20%26%20Compliance%2FAWS-Shield.svg` |
-| Network | `infra%2F014-network.svg` |
-| General User | `general%2Fuser.svg` |
-| General Group | `general%2Fgroup.svg` |
-| General Desktop | `general%2Fdesktop.svg` |
+| Network              | `infra%2F014-network.svg`                                             |
+| General User         | `general%2Fuser.svg`                                                  |
+| General Group        | `general%2Fgroup.svg`                                                 |
+| General Desktop      | `general%2Fdesktop.svg`                                               |
 
 ## AWS Cloud Architecture Patterns
 

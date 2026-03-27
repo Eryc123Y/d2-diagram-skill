@@ -1,4 +1,4 @@
-# D2 Diagram Examples -- Complete Renderable Bluestaq Diagrams
+# D2 Diagram Examples -- Complete Renderable Examples
 
 ## Table of Contents
 
@@ -10,12 +10,16 @@
 - [6. L3 Network / Security Topology](#6-l3-network--security-topology)
 - [7. L2 ER Diagram](#7-l2-er-diagram)
 - [8. L2 Decision Flowchart](#8-l2-decision-flowchart)
+- [9. State Machine](#9-state-machine)
+- [10. Org Chart](#10-org-chart)
+- [11. Class Diagram](#11-class-diagram)
+- [12. Roadmap / Timeline](#12-roadmap--timeline)
 
 ---
 
 ## 1. L1 System Landscape
 
-Executive-level overview of the Bluestaq product ecosystem. Full Bluestaq class library included.
+Executive-level overview of a product ecosystem. Full default class library included.
 
 ```d2
 # LEVEL: L1 -- System Landscape
@@ -1092,4 +1096,394 @@ cache-store -> success { class: yes-flow }
 
 ```bash
 d2 --sketch --theme 200 --layout elk flowchart.d2 flowchart.svg
+```
+
+---
+
+## 9. State Machine
+
+Finite state machine showing an order lifecycle with typed transition edges and terminal nodes.
+
+```d2
+# DIAGRAM TYPE: State Machine
+# AUDIENCE: Developers, product engineers
+# Shows: Order lifecycle — states, transitions, and terminal outcomes
+
+direction: right
+
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:        "#1C2F4A"
+  surface:   "#162646"
+  text:      "#D6D6DA"
+  text-light: "#FFFFFF"
+  primary:   "#385FAF"
+  accent:    "#9CADD7"
+  muted:     "#739BCF"
+  highlight: "#F5871F"
+  success:   "#4CAF80"
+  danger:    "#E24B4A"
+}
+
+classes: {
+  state: {
+    style: {
+      fill: ${bg}; stroke: ${primary}; stroke-width: 2
+      font-color: ${text}; border-radius: 8; shadow: true
+    }
+  }
+  terminal-start: {
+    shape: circle; width: 36; height: 36
+    style: { fill: ${text}; stroke: ${primary}; stroke-width: 2 }
+  }
+  terminal-end: {
+    shape: circle; width: 36; height: 36
+    style: { fill: ${surface}; stroke: ${text}; stroke-width: 4 }
+  }
+  error-state: {
+    style: {
+      fill: ${bg}; stroke: ${danger}; stroke-width: 2
+      font-color: ${danger}; border-radius: 8
+    }
+  }
+  transition: { style: { stroke: ${primary}; stroke-width: 2 } }
+  success-transition: { style: { stroke: ${success}; stroke-width: 2 } }
+  error-transition: { style: { stroke: ${danger}; stroke-width: 2; stroke-dash: 3 } }
+}
+
+start: "" { class: terminal-start }
+end: ""   { class: terminal-end }
+
+pending:    Pending    { class: state }
+confirmed:  Confirmed  { class: state }
+processing: Processing { class: state }
+shipped:    Shipped    { class: state }
+delivered:  Delivered  { class: state }
+cancelled:  Cancelled  { class: error-state }
+refunded:   Refunded   { class: error-state }
+
+start      -> pending:    ""                    { class: transition }
+pending    -> confirmed:  payment received      { class: success-transition }
+pending    -> cancelled:  timeout / user cancel { class: error-transition }
+confirmed  -> processing: warehouse picks       { class: transition }
+confirmed  -> cancelled:  admin cancel          { class: error-transition }
+processing -> shipped:    dispatched            { class: transition }
+processing -> cancelled:  out of stock          { class: error-transition }
+shipped    -> delivered:  courier confirms      { class: success-transition }
+shipped    -> processing: returned to warehouse { class: error-transition }
+delivered  -> refunded:   return request        { class: error-transition }
+cancelled  -> end:        ""                    { class: transition }
+refunded   -> end:        ""                    { class: transition }
+delivered  -> end:        ""                    { class: success-transition }
+```
+
+```bash
+d2 --sketch --theme 200 --layout elk state-machine.d2 state-machine.svg
+```
+
+---
+
+## 10. Org Chart
+
+Engineering department reporting hierarchy using `person` shapes and department containers.
+
+```d2
+# DIAGRAM TYPE: Org Chart
+# AUDIENCE: All staff, leadership, HR
+# Shows: Engineering department reporting structure
+
+direction: down
+
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:        "#1C2F4A"
+  surface:   "#162646"
+  text:      "#D6D6DA"
+  text-light: "#FFFFFF"
+  primary:   "#385FAF"
+  muted:     "#739BCF"
+}
+
+classes: {
+  executive: {
+    shape: person; width: 120; height: 90
+    style: { fill: ${surface}; stroke: ${primary}; stroke-width: 3; font-color: ${text}; bold: true }
+  }
+  manager: {
+    shape: person; width: 110; height: 85
+    style: { fill: ${bg}; stroke: ${primary}; stroke-width: 2; font-color: ${text} }
+  }
+  ic: {
+    shape: person; width: 100; height: 80
+    style: { fill: ${bg}; stroke: ${muted}; stroke-width: 1; font-color: ${text} }
+  }
+  dept: {
+    style: {
+      fill: ${surface}; stroke: ${primary}; stroke-dash: 3
+      font-color: ${text-light}; border-radius: 8; bold: true; opacity: 0.9
+    }
+  }
+  reports-to: { style: { stroke: ${muted}; stroke-width: 2 } }
+}
+
+cto: "CTO\nAlex Chen" { class: executive }
+
+eng: Engineering {
+  class: dept
+
+  vp: "VP Engineering\nSam Park" { class: manager }
+
+  frontend: Frontend {
+    class: dept
+    em_fe: "EM Frontend\nJordan Li" { class: manager }
+    fe1: Alice Wong  { class: ic }
+    fe2: Bob Kim     { class: ic }
+    fe3: Carol Patel { class: ic }
+  }
+
+  backend: Backend {
+    class: dept
+    em_be: "EM Backend\nTaylor Obi" { class: manager }
+    be1: Dave Chen  { class: ic }
+    be2: Eve Santos { class: ic }
+  }
+
+  platform: Platform {
+    class: dept
+    em_pl: "EM Platform\nMorgan Yue" { class: manager }
+    pl1: Frank Liu { class: ic }
+    pl2: Grace Kim { class: ic }
+  }
+}
+
+cto                  -> eng.vp              { class: reports-to }
+eng.vp               -> eng.frontend.em_fe  { class: reports-to }
+eng.vp               -> eng.backend.em_be   { class: reports-to }
+eng.vp               -> eng.platform.em_pl  { class: reports-to }
+eng.frontend.em_fe   -> eng.frontend.fe1    { class: reports-to }
+eng.frontend.em_fe   -> eng.frontend.fe2    { class: reports-to }
+eng.frontend.em_fe   -> eng.frontend.fe3    { class: reports-to }
+eng.backend.em_be    -> eng.backend.be1     { class: reports-to }
+eng.backend.em_be    -> eng.backend.be2     { class: reports-to }
+eng.platform.em_pl   -> eng.platform.pl1    { class: reports-to }
+eng.platform.em_pl   -> eng.platform.pl2    { class: reports-to }
+```
+
+```bash
+d2 --sketch --theme 200 --layout elk org-chart.d2 org-chart.svg
+```
+
+---
+
+## 11. Class Diagram
+
+UML-style class diagram using `sql_table` shapes. Fields and methods as rows; relationships as edges with ER arrowheads.
+
+```d2
+# DIAGRAM TYPE: Class Diagram
+# AUDIENCE: Developers
+# Shows: E-commerce domain model — Product, Order, User, Cart
+
+direction: right
+
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:        "#1C2F4A"
+  surface:   "#162646"
+  text:      "#D6D6DA"
+  primary:   "#385FAF"
+  accent:    "#9CADD7"
+  muted:     "#739BCF"
+}
+
+User: User {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  email: varchar(255) {constraint: unique}
+  name: varchar(100)
+  password_hash: varchar(255)
+  role: enum(admin,customer)
+  created_at: timestamp
+}
+
+Address: Address {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  user_id: int {constraint: foreign_key}
+  line1: varchar(255)
+  city: varchar(100)
+  country: varchar(2)
+  is_default: bool
+}
+
+Product: Product {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  sku: varchar(64) {constraint: unique}
+  name: varchar(255)
+  price_cents: int
+  stock_qty: int
+  category_id: int {constraint: foreign_key}
+}
+
+Category: Category {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  name: varchar(100) {constraint: unique}
+  parent_id: int {constraint: foreign_key}
+}
+
+Cart: Cart {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  user_id: int {constraint: foreign_key}
+  created_at: timestamp
+  expires_at: timestamp
+}
+
+CartItem: CartItem {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  cart_id: int {constraint: foreign_key}
+  product_id: int {constraint: foreign_key}
+  quantity: int
+}
+
+Order: Order {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  user_id: int {constraint: foreign_key}
+  address_id: int {constraint: foreign_key}
+  status: enum(pending,confirmed,shipped,delivered,cancelled)
+  total_cents: int
+  placed_at: timestamp
+}
+
+OrderItem: OrderItem {
+  shape: sql_table
+  id: int {constraint: primary_key}
+  order_id: int {constraint: foreign_key}
+  product_id: int {constraint: foreign_key}
+  quantity: int
+  unit_price_cents: int
+}
+
+# Relationships
+User     -> Address:   { source-arrowhead.shape: cf-one-required; target-arrowhead.shape: cf-many; style.stroke: ${primary} }
+User     -> Cart:      { source-arrowhead.shape: cf-one-required; target-arrowhead.shape: cf-one; style.stroke: ${primary} }
+User     -> Order:     { source-arrowhead.shape: cf-one-required; target-arrowhead.shape: cf-many; style.stroke: ${primary} }
+Cart     -> CartItem:  { source-arrowhead.shape: cf-one-required; target-arrowhead.shape: cf-many; style.stroke: ${accent} }
+Order    -> OrderItem: { source-arrowhead.shape: cf-one-required; target-arrowhead.shape: cf-many; style.stroke: ${accent} }
+Product  -> CartItem:  { source-arrowhead.shape: cf-one-required; target-arrowhead.shape: cf-many; style.stroke: ${muted} }
+Product  -> OrderItem: { source-arrowhead.shape: cf-one-required; target-arrowhead.shape: cf-many; style.stroke: ${muted} }
+Category -> Product:   { source-arrowhead.shape: cf-one-required; target-arrowhead.shape: cf-many; style.stroke: ${muted} }
+Category -> Category:  parent { source-arrowhead.shape: cf-one; target-arrowhead.shape: cf-many; style.stroke: ${muted}; style.stroke-dash: 3 }
+Order    -> Address:   { source-arrowhead.shape: cf-many; target-arrowhead.shape: cf-one-required; style.stroke: ${primary} }
+```
+
+```bash
+d2 --sketch --theme 200 --layout elk class-diagram.d2 class-diagram.svg
+```
+
+---
+
+## 12. Roadmap / Timeline
+
+Product roadmap by quarter using grid layout. Three status classes: shipped, in-progress, planned.
+
+```d2
+# DIAGRAM TYPE: Roadmap / Timeline
+# AUDIENCE: Product, engineering, stakeholders
+# Shows: 2025 product roadmap by quarter with delivery status
+
+direction: right
+
+vars: {
+  d2-config: { sketch: true; theme-id: 200; layout-engine: elk }
+  bg:        "#1C2F4A"
+  surface:   "#162646"
+  text:      "#D6D6DA"
+  text-light: "#FFFFFF"
+  primary:   "#385FAF"
+  accent:    "#9CADD7"
+  muted:     "#739BCF"
+  highlight: "#F5871F"
+  success:   "#4CAF80"
+  danger:    "#E24B4A"
+}
+
+classes: {
+  quarter: {
+    style: {
+      fill: ${surface}; stroke: ${primary}; stroke-width: 2
+      font-color: ${text-light}; bold: true; border-radius: 6
+    }
+  }
+  shipped: {
+    shape: step
+    style: {
+      fill: "#1A3A2A"; stroke: ${success}; stroke-width: 1
+      font-color: ${success}; border-radius: 4
+    }
+  }
+  in-progress: {
+    shape: step
+    style: {
+      fill: ${bg}; stroke: ${accent}; stroke-width: 2
+      font-color: ${text}; border-radius: 4
+    }
+  }
+  planned: {
+    shape: step
+    style: {
+      fill: ${surface}; stroke: ${muted}; stroke-dash: 3; stroke-width: 1
+      font-color: ${muted}; border-radius: 4
+    }
+  }
+  milestone: {
+    shape: diamond
+    style: { fill: ${highlight}; stroke: "#c46a12"; stroke-width: 2; font-color: ${text-light}; bold: true }
+  }
+}
+
+q1: Q1 {
+  class: quarter
+  grid-rows: 3; grid-gap: 8
+  auth:    Auth v2            { class: shipped }
+  search:  Search revamp      { class: shipped }
+  api_v1:  Public API v1      { class: shipped }
+}
+
+q2: Q2 {
+  class: quarter
+  grid-rows: 3; grid-gap: 8
+  billing: Billing integration        { class: in-progress }
+  collab:  Real-time collaboration    { class: in-progress }
+  mobile:  Mobile app beta            { class: planned }
+}
+
+q3: Q3 {
+  class: quarter
+  grid-rows: 3; grid-gap: 8
+  ai:         AI assistant        { class: planned }
+  analytics:  Analytics dashboard { class: planned }
+  sso:        Enterprise SSO      { class: planned }
+}
+
+q4: Q4 {
+  class: quarter
+  grid-rows: 3; grid-gap: 8
+  marketplace: Marketplace launch { class: planned }
+  api_v2:      Public API v2      { class: planned }
+  i18n:        Internationalization { class: planned }
+}
+
+ga: "🚀 GA Launch" { class: milestone }
+
+q2.billing -> ga: enables { style.stroke: ${highlight}; style.stroke-width: 2 }
+q2.collab  -> ga: enables { style.stroke: ${highlight}; style.stroke-width: 2 }
+```
+
+```bash
+d2 --sketch --theme 200 --layout elk roadmap.d2 roadmap.svg
 ```
