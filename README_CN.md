@@ -43,6 +43,20 @@
 
 ## 安装方式
 
+### 通过 skills.sh / skills CLI 安装
+
+可以直接通过 skills CLI 从 GitHub 安装：
+
+```bash
+npx skills add https://github.com/Eryc123Y/d2-diagram-skill --skill d2-diagram
+```
+
+全局安装：
+
+```bash
+npx skills add https://github.com/Eryc123Y/d2-diagram-skill --skill d2-diagram -g
+```
+
 安装到个人全局目录：
 
 ```bash

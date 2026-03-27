@@ -43,6 +43,20 @@ This skill is designed for:
 
 ## Install
 
+### Install via skills.sh / skills CLI
+
+Install from GitHub with the skills CLI:
+
+```bash
+npx skills add https://github.com/Eryc123Y/d2-diagram-skill --skill d2-diagram
+```
+
+Global install:
+
+```bash
+npx skills add https://github.com/Eryc123Y/d2-diagram-skill --skill d2-diagram -g
+```
+
 Personal install:
 
 ```bash
