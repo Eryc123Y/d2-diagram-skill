@@ -1,0 +1,49 @@
+# DIAGRAM TYPE: Flowchart
+# AUDIENCE: Product and ops teams
+# Shows: A review workflow using the light built-in palette
+
+direction: down
+
+vars: {
+  d2-config: {
+    sketch: true
+    theme-id: 0
+    layout-engine: elk
+  }
+}
+
+start: Request received {
+  shape: oval
+}
+
+triage: Triage request {
+  shape: step
+}
+
+decision: Ready for implementation? {
+  shape: diamond
+}
+
+clarify: Ask for clarification {
+  shape: callout
+}
+
+implement: Implement change {
+  shape: step
+}
+
+review: Review output {
+  shape: step
+}
+
+publish: Publish result {
+  shape: oval
+}
+
+start -> triage
+triage -> decision
+decision -> clarify: no
+clarify -> triage: update scope
+decision -> implement: yes
+implement -> review
+review -> publish

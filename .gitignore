@@ -1,3 +1,4 @@
 *.svg
 .DS_Store
 *.output
+!examples/rendered/*.svg

@@ -4,17 +4,25 @@
 
 `d2-diagram` is a Claude Code skill for generating production-quality [D2](https://d2lang.com/) diagrams for system and process visualization.
 
-## Attribution
+It is built for people who want diagrams that are readable, stylish, and structurally correct without falling back to Mermaid, ASCII sketches, or ad hoc notation.
+
+## Why this fork
 
 This repository is based on the original work by **Altstaq-Apps**:
 
 - Upstream repository: https://github.com/Altstaq-Apps/d2-diagram-skill
 
-This fork is maintained by **Eryc123Y** and adapts the original skill with additional restructuring, documentation, ELK-by-default guidance, and UML 2.5.1 relationship notation support.
+This fork is maintained by **Eryc123Y**. The current version keeps the original foundation, then extends it with:
 
-## Scope
+- a cleaner public repo structure
+- separate English and Chinese documentation
+- ELK-first layout guidance
+- bundled UML 2.5.1 relationship notation reference
+- a more explicit installation path for the `skills` CLI ecosystem
 
-This skill is designed for:
+## What the skill covers
+
+Use it for:
 
 - system architecture
 - flowcharts
@@ -27,19 +35,42 @@ This skill is designed for:
 - data-flow and state-machine diagrams
 - org charts, class diagrams, and roadmaps
 
-## Repository Layout
+## Built-in styles
 
-```text
-.
-├── README.md
-├── README_CN.md
-└── skill/
-    ├── SKILL.md
-    └── references/
-        ├── d2-examples.md
-        ├── d2-style-guide.md
-        └── uml-2.5.1-notation.md
-```
+The skill ships with a few strong defaults instead of one generic look:
+
+- **Dark sketch** for engineering architecture diagrams
+- **Light sketch** for flow and process diagrams in docs or presentations
+- **Minimal formal** for UML-style and print-friendly diagrams
+- **Strict UML mode** when relationship semantics matter
+
+The skill also defaults to **ELK** for layouts, while treating `sequence_diagram` as the practical exception because D2 handles that mode differently.
+
+## Example gallery
+
+### Dark architecture
+
+[Source](./examples/src/dark-architecture.d2) | [Rendered SVG](./examples/rendered/dark-architecture.svg)
+
+![Dark architecture example](./examples/rendered/dark-architecture.svg)
+
+### Light flowchart
+
+[Source](./examples/src/light-flowchart.d2) | [Rendered SVG](./examples/rendered/light-flowchart.svg)
+
+![Light flowchart example](./examples/rendered/light-flowchart.svg)
+
+### Minimal UML
+
+[Source](./examples/src/minimal-uml.d2) | [Rendered SVG](./examples/rendered/minimal-uml.svg)
+
+![Minimal UML example](./examples/rendered/minimal-uml.svg)
+
+### Sequence diagram
+
+[Source](./examples/src/sequence-signin.d2) | [Rendered SVG](./examples/rendered/sequence-signin.svg)
+
+![Sequence example](./examples/rendered/sequence-signin.svg)
 
 ## Install
 
@@ -57,6 +88,8 @@ Global install:
 npx skills add https://github.com/Eryc123Y/d2-diagram-skill --skill d2-diagram -g
 ```
 
+### Manual install
+
 Personal install:
 
 ```bash
@@ -71,14 +104,31 @@ mkdir -p .claude/skills/d2-diagram
 cp -R skill/. .claude/skills/d2-diagram/
 ```
 
+## Repository layout
+
+```text
+.
+├── README.md
+├── README_CN.md
+├── examples/
+│   ├── rendered/
+│   └── src/
+└── skill/
+    ├── SKILL.md
+    └── references/
+        ├── d2-examples.md
+        ├── d2-style-guide.md
+        └── uml-2.5.1-notation.md
+```
+
 ## Notes
 
 - The install target must contain `SKILL.md` at its root.
 - The `references/` directory is part of the skill package and should be copied together with `SKILL.md`.
-- The skill defaults to ELK for layouts. `sequence_diagram` remains the only practical exception because D2 handles it internally.
-- A dedicated UML 2.5.1 notation reference is bundled for relationship-accurate UML diagrams.
+- The repo includes a bundled UML 2.5.1 notation reference for relationship-accurate UML diagrams.
+- The examples in this repo are intentionally small and presentation-friendly. The full working guidance lives in `skill/SKILL.md` and the bundled references.
 
-## Render Example
+## Render example
 
 ```bash
 d2 --sketch --theme 200 --layout elk input.d2 output.svg

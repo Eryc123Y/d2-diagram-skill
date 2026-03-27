@@ -1,0 +1,119 @@
+# DIAGRAM TYPE: Architecture
+# AUDIENCE: Engineering teams
+# Shows: An event-driven platform with API, workers, queues, and storage
+
+direction: right
+
+vars: {
+  d2-config: {
+    sketch: true
+    theme-id: 200
+    layout-engine: elk
+  }
+  bg:         "#1C2F4A"
+  surface:    "#162646"
+  text:       "#D6D6DA"
+  primary:    "#385FAF"
+  accent:     "#9CADD7"
+  highlight:  "#F5871F"
+  muted:      "#739BCF"
+  success:    "#4CAF80"
+  danger:     "#E24B4A"
+  text-light: "#FFFFFF"
+}
+
+classes: {
+  actor: {
+    shape: person
+    style: {
+      fill: ${surface}
+      stroke: ${muted}
+      font-color: ${text}
+    }
+  }
+  service: {
+    style: {
+      fill: ${surface}
+      stroke: ${primary}
+      stroke-width: 2
+      font-color: ${text}
+      border-radius: 8
+      shadow: true
+    }
+  }
+  queue: {
+    shape: queue
+    width: 120
+    height: 70
+    style: {
+      fill: ${surface}
+      stroke: ${muted}
+      font-color: ${text}
+    }
+  }
+  datastore: {
+    shape: cylinder
+    width: 140
+    height: 100
+    style: {
+      fill: ${surface}
+      stroke: ${primary}
+      font-color: ${text}
+    }
+  }
+  boundary: {
+    style: {
+      fill: ${bg}
+      stroke: ${primary}
+      stroke-width: 2
+      font-color: ${text-light}
+      border-radius: 16
+      bold: true
+    }
+  }
+}
+
+user: Product team {
+  class: actor
+}
+
+platform: Event Platform {
+  class: boundary
+  label.near: outside-top-center
+
+  edge: API Edge {
+    class: service
+  }
+
+  ingestion: Ingestion Worker {
+    class: service
+  }
+
+  orchestration: Orchestrator {
+    class: service
+  }
+
+  jobs: Jobs Queue {
+    class: queue
+  }
+
+  events: Event Bus {
+    class: queue
+  }
+
+  postgres: Postgres {
+    class: datastore
+  }
+
+  storage: Object Storage {
+    class: datastore
+  }
+}
+
+user -> platform.edge: sends requests
+platform.edge -> platform.ingestion: validates
+platform.ingestion -> platform.jobs: enqueues work
+platform.jobs -> platform.orchestration: pulls jobs
+platform.orchestration -> platform.events: publishes events
+platform.orchestration -> platform.postgres: stores metadata
+platform.orchestration -> platform.storage: writes artifacts

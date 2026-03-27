@@ -1,0 +1,19 @@
+# DIAGRAM TYPE: Sequence
+# AUDIENCE: Application engineers
+# Shows: A sign-in flow and callback exchange
+
+Auth flow: {
+  shape: sequence_diagram
+
+  user: User
+  app: Web App
+  auth: Auth Service
+  db: User Store
+
+  user -> app: enter credentials
+  app -> auth: exchange code
+  auth -> db: load account
+  db -> auth: account data
+  auth -> app: session token
+  app -> user: signed in
+}

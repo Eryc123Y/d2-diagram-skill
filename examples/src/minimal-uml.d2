@@ -1,0 +1,64 @@
+# DIAGRAM TYPE: UML Class Diagram
+# AUDIENCE: Developers
+# Shows: A minimal UML-style example with composition, aggregation, and realization
+
+direction: right
+
+vars: {
+  d2-config: {
+    sketch: false
+    theme-id: 0
+    layout-engine: elk
+  }
+}
+
+PaymentProvider: {
+  shape: class
+  +authorize(amount: Money): Authorization
+  +capture(id: string): Receipt
+}
+
+StripeAdapter: {
+  shape: class
+  -client: StripeClient
+  +authorize(amount: Money): Authorization
+  +capture(id: string): Receipt
+}
+
+CheckoutSession: {
+  shape: class
+  +id: UUID
+  +submit(): Receipt
+}
+
+LineItem: {
+  shape: class
+  +sku: string
+  +quantity: int
+  +price: Money
+}
+
+DiscountPolicy: {
+  shape: class
+  +apply(total: Money): Money
+}
+
+CheckoutSession -> LineItem: contains {
+  source-arrowhead.shape: diamond
+  source-arrowhead.style.filled: true
+}
+
+CheckoutSession -> DiscountPolicy: uses {
+  style.stroke-dash: 5
+}
+
+StripeAdapter -> PaymentProvider: realizes {
+  style.stroke-dash: 5
+  target-arrowhead.shape: triangle
+  target-arrowhead.style.filled: false
+}
+
+DiscountPolicy -> LineItem: references {
+  source-arrowhead.shape: diamond
+  source-arrowhead.style.filled: false
+}
