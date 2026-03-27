@@ -1,11 +1,13 @@
 # DIAGRAM TYPE: Sequence
 # AUDIENCE: Application and platform engineers
-# Shows: A production checkout orchestration with idempotency, fraud checks, 3DS, webhook confirmation, downstream events, and compensation
+# Shows: A production checkout orchestration with idempotency, fraud, 3DS, webhook reconciliation, downstream events, and compensation
 
 Checkout orchestration: {
   shape: sequence_diagram
 
-  customer: Customer
+  customer: Customer {
+    shape: person
+  }
   web: Web App
   edge: Edge API
   checkout: Checkout service
@@ -18,62 +20,77 @@ Checkout orchestration: {
   email: Notification service
   ops: Operations console
 
-  checkout."Idempotency key is attached to every retry for the same basket"
-  inventory."Reservation TTL = 15 minutes"
+  checkout."Idempotency key is reused across retries for the same checkout attempt."
+  inventory."Reservations carry a 15 minute TTL until commit or release."
+  payments."Webhook delivery can arrive before the client confirm request returns."
 
-  session_bootstrap: Session bootstrap {
-    customer -> web: click Pay now
-    web -> edge: POST /checkout/submit
-    edge -> checkout: submitCheckout(cart, idempotencyKey)
-    checkout -> fraud: score basket and device fingerprint
-    fraud -> checkout: risk = low
-    checkout -> inventory: reserve SKUs
-    inventory -> checkout: reservation created
-    checkout -> web: return challengeable payment session
+  submit_and_score: Submit and score basket {
+    customer.submit -> web.submit: click Pay now
+    web.submit -> edge.submit: POST /checkout/submit
+    edge.submit -> checkout.session: submitCheckout(cart, idempotencyKey)
+    checkout.session -> checkout.session: dedupe by idempotencyKey
+    checkout.session -> fraud.score: evaluate basket and device fingerprint
+    fraud.score -> checkout.session: risk = low
+    checkout.session -> inventory.reserve: reserve SKUs
+    inventory.reserve -> inventory.reserve: start reservation TTL
+    inventory.reserve -> checkout.session: reservation(token, expiresAt)
+    checkout.session -> web.submit: return challengeable session
+    web.submit -> customer.submit: render payment confirmation screen
   }
 
-  authorization_with_3ds: Authorization with 3DS {
-    web -> edge: POST /checkout/authorize
-    edge -> checkout: authorize payment
-    checkout -> payments: authorize(amount, idempotencyKey)
-    payments -> threeds: create challenge
-    threeds -> payments: challenge url
-    payments -> checkout: action_required
-    checkout -> web: present 3DS challenge
-    web -> customer: redirect to challenge flow
-    customer -> web: complete challenge
-    web -> edge: POST /checkout/confirm
-    edge -> checkout: confirm challenge
-    checkout -> payments: confirm authorization
-    payments -> checkout: authorization approved
-    payments -> edge: webhook payment.authorized
-    edge -> checkout: reconcile webhook
+  challenge_and_authorize: Authorize with 3DS challenge {
+    customer.challenge -> web.challenge: confirm payment
+    web.challenge -> edge.challenge: POST /checkout/authorize
+    edge.challenge -> checkout.auth: authorize payment
+    checkout.auth -> payments.auth: authorize(amount, idempotencyKey)
+    payments.auth -> threeds.challenge: create challenge session
+    threeds.challenge -> payments.auth: challenge url
+    payments.auth -> checkout.auth: action_required
+    checkout.auth -> web.challenge: present challenge
+    web.challenge -> customer.challenge: redirect to 3DS
+    customer.challenge -> web.challenge: complete challenge
+    web.challenge -> edge.challenge: POST /checkout/confirm
+    edge.challenge -> checkout.auth: confirm challenge result
+    checkout.auth -> payments.auth: confirm authorization
+    payments.auth -> checkout.auth: authorization approved
+    checkout.auth -> web.challenge: authorization accepted
+    web.challenge -> customer.challenge: continue to confirmation state
   }
 
-  commit_and_publish: Commit and publish {
-    checkout -> orders: create pending order
-    orders -> checkout: order created
-    checkout -> bus: publish order.created
-    bus -> email: fan out confirmation event
-    email -> checkout: email queued
-    checkout -> inventory: mark reservation committed
-    inventory -> checkout: reservation consumed
-    checkout -> web: checkout success
-    web -> customer: render confirmation page
+  webhook_and_commit: Reconcile webhook and commit order {
+    payments.webhook -> edge.webhook: payment.authorized {
+      style.stroke-dash: 5
+    }
+    edge.webhook -> checkout.reconcile: reconcile webhook
+    checkout.reconcile -> orders.create: create pending order
+    orders.create -> orders.create: persist order and payment reference
+    orders.create -> checkout.reconcile: order created
+    checkout.reconcile -> bus.publish: publish order.created
+    bus.publish -> email.notify: enqueue confirmation email
+    email.notify -> bus.publish: accepted
+    checkout.reconcile -> inventory.commit: commit reservation
+    inventory.commit -> checkout.reconcile: reservation consumed
+    checkout.reconcile -> edge.webhook: checkout finalized
+    edge.webhook -> web.challenge: checkout success
+    web.challenge -> customer.challenge: render confirmation page
   }
 
-  compensation_path: Compensation on order write failure {
-    web -> edge: retry previously authorized checkout
-    edge -> checkout: same idempotencyKey
-    checkout -> orders: create order
-    orders -> checkout: database write failed
-    checkout -> bus: publish checkout.compensation_required
-    checkout -> inventory: release reservation
-    inventory -> checkout: reservation released
-    checkout -> payments: void authorization
-    payments -> checkout: void confirmed
-    checkout -> ops: open compensation incident
-    checkout -> web: return recoverable failure
-    web -> customer: show retry and support options
+  compensation_on_failure: Compensation after order write failure {
+    customer.retry -> web.retry: retry from failed confirmation page
+    web.retry -> edge.retry: POST /checkout/retry
+    edge.retry -> checkout.compensate: resume existing authorization
+    checkout.compensate -> orders.fail: create order
+    orders.fail -> checkout.compensate: database write failed
+    checkout.compensate -> bus.comp: publish checkout.compensation_required {
+      style.stroke-dash: 5
+    }
+    checkout.compensate -> inventory.release: release reservation
+    inventory.release -> checkout.compensate: reservation released
+    checkout.compensate -> payments.void: void authorization
+    payments.void -> checkout.compensate: void confirmed
+    checkout.compensate -> ops.incident: open compensation incident
+    checkout.compensate -> edge.retry: recoverable failure
+    edge.retry -> web.retry: return retryable error
+    web.retry -> customer.retry: show retry and support options
   }
 }
