@@ -1,19 +1,43 @@
 # DIAGRAM TYPE: Sequence
-# AUDIENCE: Application engineers
-# Shows: A sign-in flow and callback exchange
+# AUDIENCE: Application and platform engineers
+# Shows: A production checkout orchestration with fraud, inventory, payment, and notification steps
 
-Auth flow: {
+Checkout flow: {
   shape: sequence_diagram
 
-  user: User
+  user: Customer
   app: Web App
-  auth: Auth Service
-  db: User Store
+  api: Checkout API
+  fraud: Fraud service
+  inventory: Inventory service
+  payments: Payment gateway
+  orders: Order service
+  email: Notification service
 
-  user -> app: enter credentials
-  app -> auth: exchange code
-  auth -> db: load account
-  db -> auth: account data
-  auth -> app: session token
-  app -> user: signed in
+  happy_path: Happy path {
+    user -> app: submit checkout
+    app -> api: create checkout session
+    api -> fraud: evaluate basket
+    fraud -> api: risk score = low
+    api -> inventory: reserve stock
+    inventory -> api: reservation confirmed
+    api -> payments: authorize payment
+    payments -> api: authorization approved
+    api -> orders: create order
+    orders -> api: order placed
+    api -> email: send confirmation
+    email -> api: queued
+    api -> app: checkout success
+    app -> user: render confirmation page
+  }
+
+  payment_failure: Payment failure branch {
+    app -> api: retry failed checkout
+    api -> payments: authorize payment
+    payments -> api: authorization declined
+    api -> inventory: release reservation
+    inventory -> api: reservation released
+    api -> app: payment failed
+    app -> user: show retry and support options
+  }
 }

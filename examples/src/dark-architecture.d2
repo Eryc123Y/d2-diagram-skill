@@ -1,6 +1,6 @@
 # DIAGRAM TYPE: Architecture
-# AUDIENCE: Engineering teams
-# Shows: An event-driven platform with API, workers, queues, and storage
+# AUDIENCE: Platform and infrastructure engineers
+# Shows: A production-grade active-active platform with edge, control plane, eventing, data, and observability
 
 direction: right
 
@@ -29,6 +29,17 @@ classes: {
       fill: ${surface}
       stroke: ${muted}
       font-color: ${text}
+      shadow: true
+    }
+  }
+  external: {
+    style: {
+      fill: ${surface}
+      stroke: ${highlight}
+      stroke-width: 2
+      font-color: ${text}
+      border-radius: 8
+      shadow: true
     }
   }
   service: {
@@ -43,22 +54,25 @@ classes: {
   }
   queue: {
     shape: queue
-    width: 120
-    height: 70
+    width: 140
+    height: 80
     style: {
       fill: ${surface}
       stroke: ${muted}
+      stroke-width: 2
       font-color: ${text}
     }
   }
   datastore: {
     shape: cylinder
-    width: 140
-    height: 100
+    width: 160
+    height: 110
     style: {
       fill: ${surface}
       stroke: ${primary}
+      stroke-width: 2
       font-color: ${text}
+      shadow: true
     }
   }
   boundary: {
@@ -67,53 +81,202 @@ classes: {
       stroke: ${primary}
       stroke-width: 2
       font-color: ${text-light}
-      border-radius: 16
+      border-radius: 18
+      bold: true
+      shadow: true
+    }
+  }
+  group: {
+    style: {
+      fill: ${surface}
+      stroke: ${muted}
+      stroke-dash: 4
+      stroke-width: 2
+      font-color: ${text}
+      border-radius: 14
       bold: true
     }
   }
 }
 
-user: Product team {
+operators: Platform operators {
   class: actor
 }
 
-platform: Event Platform {
+customers: Enterprise customers {
+  class: actor
+}
+
+payments: Billing provider {
+  class: external
+}
+
+email: Notification provider {
+  class: external
+}
+
+edge: Global edge {
   class: boundary
   label.near: outside-top-center
 
-  edge: API Edge {
+  waf: WAF
+  cdn: CDN
+  auth: Identity gateway {
     class: service
   }
+}
 
-  ingestion: Ingestion Worker {
+control_plane: Control plane {
+  class: boundary
+  label.near: outside-top-center
+
+  admin_api: Admin API {
     class: service
   }
-
-  orchestration: Orchestrator {
+  tenant_service: Tenant service {
     class: service
   }
-
-  jobs: Jobs Queue {
-    class: queue
+  policy: Policy engine {
+    class: service
   }
-
-  events: Event Bus {
-    class: queue
-  }
-
-  postgres: Postgres {
-    class: datastore
-  }
-
-  storage: Object Storage {
+  audit: Audit log {
     class: datastore
   }
 }
 
-user -> platform.edge: sends requests
-platform.edge -> platform.ingestion: validates
-platform.ingestion -> platform.jobs: enqueues work
-platform.jobs -> platform.orchestration: pulls jobs
-platform.orchestration -> platform.events: publishes events
-platform.orchestration -> platform.postgres: stores metadata
-platform.orchestration -> platform.storage: writes artifacts
+region_a: Region A {
+  class: boundary
+  label.near: outside-top-center
+
+  ingress_a: Regional ingress {
+    class: service
+  }
+
+  app_a: Application tier {
+    class: group
+    api_a: Public API {
+      class: service
+    }
+    orchestration_a: Workflow engine {
+      class: service
+    }
+    read_a: Query API {
+      class: service
+    }
+  }
+
+  eventing_a: Eventing {
+    class: group
+    jobs_a: Jobs queue {
+      class: queue
+    }
+    bus_a: Event bus {
+      class: queue
+    }
+    workers_a: Worker pool {
+      class: service
+    }
+  }
+
+  data_a: Data services {
+    class: group
+    postgres_a: Postgres primary {
+      class: datastore
+    }
+    cache_a: Redis cache {
+      class: datastore
+    }
+    storage_a: Artifact store {
+      class: datastore
+    }
+  }
+}
+
+region_b: Region B {
+  class: boundary
+  label.near: outside-top-center
+
+  ingress_b: Regional ingress {
+    class: service
+  }
+
+  app_b: Application tier {
+    class: group
+    api_b: Public API {
+      class: service
+    }
+    orchestration_b: Workflow engine {
+      class: service
+    }
+    read_b: Query API {
+      class: service
+    }
+  }
+
+  eventing_b: Eventing {
+    class: group
+    jobs_b: Jobs queue {
+      class: queue
+    }
+    bus_b: Event bus {
+      class: queue
+    }
+    workers_b: Worker pool {
+      class: service
+    }
+  }
+
+  data_b: Data services {
+    class: group
+    postgres_b: Postgres replica {
+      class: datastore
+    }
+    cache_b: Redis cache {
+      class: datastore
+    }
+    storage_b: Artifact store {
+      class: datastore
+    }
+  }
+}
+
+observability: Observability and SRE {
+  class: boundary
+  label.near: outside-top-center
+
+  metrics: Metrics
+  tracing: Distributed tracing
+  logs: Central log pipeline
+  pager: On-call alerts
+}
+
+customers -> edge.cdn: web and API traffic
+operators -> control_plane.admin_api: manage tenants
+edge.auth -> control_plane.policy: policy checks
+edge.cdn -> region_a.ingress_a: primary route
+edge.cdn -> region_b.ingress_b: failover route
+region_a.ingress_a -> region_a.app_a.api_a: forwards requests
+region_b.ingress_b -> region_b.app_b.api_b: forwards requests
+region_a.app_a.api_a -> region_a.app_a.orchestration_a: command handling
+region_b.app_b.api_b -> region_b.app_b.orchestration_b: command handling
+region_a.app_a.orchestration_a -> region_a.eventing_a.jobs_a: schedules jobs
+region_b.app_b.orchestration_b -> region_b.eventing_b.jobs_b: schedules jobs
+region_a.eventing_a.jobs_a -> region_a.eventing_a.workers_a: executes work
+region_b.eventing_b.jobs_b -> region_b.eventing_b.workers_b: executes work
+region_a.eventing_a.workers_a -> region_a.eventing_a.bus_a: publishes events
+region_b.eventing_b.workers_b -> region_b.eventing_b.bus_b: publishes events
+region_a.app_a.orchestration_a -> region_a.data_a.postgres_a: writes state
+region_a.app_a.read_a -> region_a.data_a.cache_a: reads hot data
+region_a.eventing_a.workers_a -> region_a.data_a.storage_a: writes artifacts
+region_b.app_b.read_b -> region_b.data_b.cache_b: reads hot data
+region_b.eventing_b.workers_b -> region_b.data_b.storage_b: writes artifacts
+region_a.data_a.postgres_a -> region_b.data_b.postgres_b: replication
+region_a.eventing_a.bus_a -> region_b.eventing_b.bus_b: mirrored topics
+control_plane.tenant_service -> region_a.app_a.api_a: tenant config rollout
+control_plane.tenant_service -> region_b.app_b.api_b: tenant config rollout
+region_a.app_a.api_a -> payments: charge requests
+region_a.eventing_a.workers_a -> email: outbound notifications
+region_a.app_a.api_a -> observability.metrics: emits metrics
+region_a.app_a.orchestration_a -> observability.tracing: traces spans
+region_a.eventing_a.workers_a -> observability.logs: streams logs
+observability.metrics -> observability.pager: SLO breach alerts

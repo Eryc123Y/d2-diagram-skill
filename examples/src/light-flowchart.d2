@@ -1,6 +1,6 @@
 # DIAGRAM TYPE: Flowchart
-# AUDIENCE: Product and ops teams
-# Shows: A review workflow using the light built-in palette
+# AUDIENCE: Delivery managers and platform teams
+# Shows: A production release governance flow with quality, security, canary, and rollback gates
 
 direction: down
 
@@ -12,38 +12,80 @@ vars: {
   }
 }
 
-start: Request received {
+start: Merge to main {
   shape: oval
 }
 
-triage: Triage request {
+build: Build artifacts {
   shape: step
 }
 
-decision: Ready for implementation? {
+unit: Run unit and contract tests {
+  shape: step
+}
+
+security: Run SAST, secrets, and dependency scan {
+  shape: step
+}
+
+quality_gate: Quality gate passed? {
   shape: diamond
 }
 
-clarify: Ask for clarification {
+fixes: Reject release and open remediation ticket {
   shape: callout
 }
 
-implement: Implement change {
+staging: Deploy to staging {
   shape: step
 }
 
-review: Review output {
+e2e: Run integration, E2E, and synthetic checks {
   shape: step
 }
 
-publish: Publish result {
+approval: Change approval granted? {
+  shape: diamond
+}
+
+canary: Roll out 5 percent canary {
+  shape: step
+}
+
+observe: Observe metrics, logs, and error budget {
+  shape: step
+}
+
+healthy: Canary healthy? {
+  shape: diamond
+}
+
+rollback: Automatic rollback and incident notification {
+  shape: callout
+}
+
+progressive: Expand to 25 percent, 50 percent, 100 percent {
+  shape: step
+}
+
+closeout: Publish release notes and close deployment window {
   shape: oval
 }
 
-start -> triage
-triage -> decision
-decision -> clarify: no
-clarify -> triage: update scope
-decision -> implement: yes
-implement -> review
-review -> publish
+start -> build
+build -> unit
+unit -> security
+security -> quality_gate
+quality_gate -> fixes: no
+fixes -> start: new patch
+quality_gate -> staging: yes
+staging -> e2e
+e2e -> approval
+approval -> fixes: no
+approval -> canary: yes
+canary -> observe
+observe -> healthy
+healthy -> rollback: no
+rollback -> start: stabilize and retry
+healthy -> progressive: yes
+progressive -> closeout

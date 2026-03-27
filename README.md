@@ -48,25 +48,27 @@ The skill also defaults to **ELK** for layouts, while treating `sequence_diagram
 
 ## Example gallery
 
-### Dark architecture
+The repository now includes a production-grade example set rather than tiny toy diagrams. Each example is meant to show how the built-in styles hold up under real structure, real dependencies, and production-scale storytelling.
+
+### Active-active platform architecture
 
 [Source](./examples/src/dark-architecture.d2) | [Rendered SVG](./examples/rendered/dark-architecture.svg)
 
 ![Dark architecture example](./examples/rendered/dark-architecture.svg)
 
-### Light flowchart
+### Enterprise release governance flow
 
 [Source](./examples/src/light-flowchart.d2) | [Rendered SVG](./examples/rendered/light-flowchart.svg)
 
 ![Light flowchart example](./examples/rendered/light-flowchart.svg)
 
-### Minimal UML
+### Production UML domain model
 
 [Source](./examples/src/minimal-uml.d2) | [Rendered SVG](./examples/rendered/minimal-uml.svg)
 
 ![Minimal UML example](./examples/rendered/minimal-uml.svg)
 
-### Sequence diagram
+### Checkout orchestration sequence
 
 [Source](./examples/src/sequence-signin.d2) | [Rendered SVG](./examples/rendered/sequence-signin.svg)
 
@@ -126,7 +128,7 @@ cp -R skill/. .claude/skills/d2-diagram/
 - The install target must contain `SKILL.md` at its root.
 - The `references/` directory is part of the skill package and should be copied together with `SKILL.md`.
 - The repo includes a bundled UML 2.5.1 notation reference for relationship-accurate UML diagrams.
-- The examples in this repo are intentionally small and presentation-friendly. The full working guidance lives in `skill/SKILL.md` and the bundled references.
+- The examples in this repo are intentionally production-grade and showcase larger structures, dependency chains, and richer relationship semantics. The full guidance still lives in `skill/SKILL.md` and the bundled references.
 
 ## Render example
 

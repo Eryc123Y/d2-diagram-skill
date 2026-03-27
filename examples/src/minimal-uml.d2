@@ -1,6 +1,6 @@
 # DIAGRAM TYPE: UML Class Diagram
-# AUDIENCE: Developers
-# Shows: A minimal UML-style example with composition, aggregation, and realization
+# AUDIENCE: Backend and domain engineers
+# Shows: A production-grade commerce domain with aggregates, policies, fulfillment, and payment integration
 
 direction: right
 
@@ -12,44 +12,121 @@ vars: {
   }
 }
 
+Customer: {
+  shape: class
+  +id: UUID
+  +email: string
+  +defaultCurrency: Currency
+}
+
+Address: {
+  shape: class
+  +line1: string
+  +city: string
+  +country: string
+  +postalCode: string
+}
+
+Order: {
+  shape: class
+  +id: UUID
+  +status: OrderStatus
+  +submit(): void
+  +cancel(reason: string): void
+  +capturePayment(): Receipt
+}
+
+OrderLine: {
+  shape: class
+  +sku: string
+  +quantity: int
+  +unitPrice: Money
+}
+
+Shipment: {
+  shape: class
+  +id: UUID
+  +trackingNumber: string
+  +markPacked(): void
+  +markDelivered(): void
+}
+
+Invoice: {
+  shape: class
+  +id: UUID
+  +issue(): void
+  +markPaid(): void
+}
+
 PaymentProvider: {
   shape: class
-  +authorize(amount: Money): Authorization
-  +capture(id: string): Receipt
+  +authorize(orderId: UUID, amount: Money): Authorization
+  +capture(paymentId: string): Receipt
 }
 
 StripeAdapter: {
   shape: class
   -client: StripeClient
-  +authorize(amount: Money): Authorization
-  +capture(id: string): Receipt
-}
-
-CheckoutSession: {
-  shape: class
-  +id: UUID
-  +submit(): Receipt
-}
-
-LineItem: {
-  shape: class
-  +sku: string
-  +quantity: int
-  +price: Money
+  +authorize(orderId: UUID, amount: Money): Authorization
+  +capture(paymentId: string): Receipt
 }
 
 DiscountPolicy: {
   shape: class
-  +apply(total: Money): Money
+  +apply(order: Order): Money
 }
 
-CheckoutSession -> LineItem: contains {
+CampaignDiscount: {
+  shape: class
+  +campaignId: UUID
+  +apply(order: Order): Money
+}
+
+FulfillmentPlanner: {
+  shape: class
+  +reserve(order: Order): Reservation
+  +createShipment(order: Order): Shipment
+}
+
+DomainEventPublisher: {
+  shape: class
+  +publish(event: DomainEvent): void
+}
+
+Order -> OrderLine: contains {
   source-arrowhead.shape: diamond
   source-arrowhead.style.filled: true
 }
 
-CheckoutSession -> DiscountPolicy: uses {
+Order -> Shipment: creates {
+  source-arrowhead.shape: diamond
+  source-arrowhead.style.filled: true
+}
+
+Order -> Invoice: produces {
+  source-arrowhead.shape: diamond
+  source-arrowhead.style.filled: true
+}
+
+Customer -> Address: stores {
+  source-arrowhead.shape: diamond
+  source-arrowhead.style.filled: false
+}
+
+Order -> Customer: placed by
+Order -> DiscountPolicy: evaluated by {
   style.stroke-dash: 5
+}
+Order -> FulfillmentPlanner: planned by {
+  style.stroke-dash: 5
+}
+Order -> DomainEventPublisher: emits events {
+  style.stroke-dash: 5
+}
+
+CampaignDiscount -> DiscountPolicy: specializes {
+  target-arrowhead.shape: triangle
+  target-arrowhead.style.filled: false
 }
 
 StripeAdapter -> PaymentProvider: realizes {
@@ -58,7 +135,6 @@ StripeAdapter -> PaymentProvider: realizes {
   target-arrowhead.style.filled: false
 }
 
-DiscountPolicy -> LineItem: references {
-  source-arrowhead.shape: diamond
-  source-arrowhead.style.filled: false
+Order -> PaymentProvider: charges through {
+  style.stroke-dash: 5
 }

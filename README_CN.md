@@ -48,25 +48,27 @@
 
 ## 示例画廊
 
-### 深色架构图
+这个仓库现在展示的是一组真正偏 production-grade 的 example，而不是很小的 toy diagrams。每张图都尽量覆盖真实结构、真实依赖关系，以及更接近生产系统的叙事复杂度。
+
+### Active-active 平台架构图
 
 [Source](./examples/src/dark-architecture.d2) | [Rendered SVG](./examples/rendered/dark-architecture.svg)
 
 ![Dark architecture example](./examples/rendered/dark-architecture.svg)
 
-### 浅色流程图
+### 企业级发布治理流程图
 
 [Source](./examples/src/light-flowchart.d2) | [Rendered SVG](./examples/rendered/light-flowchart.svg)
 
 ![Light flowchart example](./examples/rendered/light-flowchart.svg)
 
-### 极简 UML
+### 生产级 UML 领域模型
 
 [Source](./examples/src/minimal-uml.d2) | [Rendered SVG](./examples/rendered/minimal-uml.svg)
 
 ![Minimal UML example](./examples/rendered/minimal-uml.svg)
 
-### 时序图
+### Checkout 编排时序图
 
 [Source](./examples/src/sequence-signin.d2) | [Rendered SVG](./examples/rendered/sequence-signin.svg)
 
@@ -126,7 +128,7 @@ cp -R skill/. .claude/skills/d2-diagram/
 - 安装目标目录的根层必须直接包含 `SKILL.md`。
 - `references/` 是 skill 的一部分，复制时要和 `SKILL.md` 一起带上。
 - 仓库内置了 UML 2.5.1 关系标记参考，适合需要严格关系语义的 UML 图。
-- 这个仓库里的 examples 是有意保持简洁、适合展示的版本；完整工作流仍然在 `skill/SKILL.md` 和配套 reference 文件里。
+- 这个仓库里的 examples 现在是偏 production-grade 的展示集，用来体现更大的结构、更真实的依赖链和更丰富的关系表达；完整工作流仍然在 `skill/SKILL.md` 和配套 reference 文件里。
 
 ## 渲染示例
 
